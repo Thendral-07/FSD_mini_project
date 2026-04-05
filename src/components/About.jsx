@@ -3,39 +3,35 @@ import "../styled/about.css";
 const teamMembers = [
   {
     id: 1,
-    name: "Sarah Johnson",
-    role: "Frontend Developer",
+    name: "Tarun s",
+    role: "24CSR320",
     bio: "Passionate about creating responsive and intuitive user interfaces with React.",
-    avatar: "👩‍💻",
-    email: "sarah@mealify.com",
-    social: ["LinkedIn", "GitHub"],
+    avatar: "👨‍💻",
+    email: "taruns.24cse@kongu.edu",
   },
   {
     id: 2,
-    name: "Michael Chen",
-    role: "Backend Developer",
-    bio: "Expert in API development and database optimization for scalable applications.",
+    name: "Yadhav Vengadesh T",
+    role: "24CSR356",
+    bio: "Learning about frontend development.",
     avatar: "👨‍💻",
-    email: "michael@mealify.com",
-    social: ["LinkedIn", "Twitter"],
+    email: "yadhavvengadesht.24@kongu.edu",
   },
   {
     id: 3,
-    name: "Emma Davis",
-    role: "UI/UX Designer",
-    bio: "Creative designer focused on delivering beautiful and user-centered design solutions.",
-    avatar: "👩‍🎨",
-    email: "emma@mealify.com",
-    social: ["Dribbble", "LinkedIn"],
+    name: "Vishal M",
+    role: "24CSR349",
+    bio: "Learning about frontend development.",
+    avatar: "👨‍💻",
+    email: "vishalm.24cse@kongu.edu",
   },
   {
     id: 4,
-    name: "James Wilson",
-    role: "Product Manager",
-    bio: "Strategic thinker dedicated to building products that solve real user problems.",
-    avatar: "👨‍💼",
-    email: "james@mealify.com",
-    social: ["LinkedIn", "Twitter"],
+    name: "Tamil Thendral K P",
+    role: "24CSR319",
+    bio: "Learning about frontend development.",
+    avatar: "👨‍💻",
+    email: "tamilthendralkp.24cse@kongu.edu",
   },
 ];
 
@@ -95,13 +91,7 @@ export default function About() {
                 <span className="contact-icon">✉️</span>
                 <a href={`mailto:${member.email}`}>{member.email}</a>
               </div>
-              <div className="member-social">
-                {member.social.map((platform, idx) => (
-                  <button key={idx} className="social-btn">
-                    {platform}
-                  </button>
-                ))}
-              </div>
+              
             </div>
           ))}
         </div>
@@ -109,7 +99,7 @@ export default function About() {
 
       <section className="stats-section">
         <div className="stat">
-          <h3 className="stat-number">50K+</h3>
+          <h3 className="stat-number">Many</h3>
           <p className="stat-label">Daily Users</p>
         </div>
         <div className="stat">
@@ -122,7 +112,7 @@ export default function About() {
         </div>
         <div className="stat">
           <h3 className="stat-number">100%</h3>
-          <p className="stat-label">Customer Satisfaction</p>
+          <p className="stat-label">Results</p>
         </div>
       </section>
     </div>
