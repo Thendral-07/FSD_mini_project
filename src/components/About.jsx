@@ -39,12 +39,12 @@ export default function About() {
   return (
     <div className="about-container">
       <section className="about-hero">
-        <h1 className="about-title">About Mealify</h1>
+        <h1 className="about-title">About DishFlash</h1>
         <p className="about-subtitle">
           Revolutionizing the way you discover meals
         </p>
         <p className="about-description">
-          Mealify is an innovative application designed to help you overcome decision fatigue when it comes to meals. Using powerful APIs and intuitive design, we make meal selection quick, easy, and fun. Whether you're looking for inspiration or want to explore new cuisines, Mealify has you covered.
+          DishFlash is an innovative application designed to help you overcome decision fatigue when it comes to meals. Using powerful APIs and intuitive design, we make meal selection quick, easy, and fun. Whether you're looking for inspiration or want to explore new cuisines, DishFlash has you covered.
         </p>
       </section>
 

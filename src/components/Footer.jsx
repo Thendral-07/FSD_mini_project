@@ -81,7 +81,7 @@ export default function Footer() {
       {/* Bottom bar: copyright + legal links */}
       <div className="footer__bottom">
         <p className="footer__copyright">
-          © {year} <span>Mealify</span>. Crafted with ❤️ &amp; 🍴
+          © {year} <span>DishFlash</span>. Crafted with ❤️ &amp; 🍴
         </p>
         <div className="footer__legal">
           <a href="#!">Privacy Policy</a>

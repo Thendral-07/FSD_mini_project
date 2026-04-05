@@ -9,7 +9,7 @@ export default function Navbar() {
   return (
     <nav className="nav">
       <h2 className="nav-logo">
-        🍊 Mealify
+         DishFlash
       </h2>
 
       <div className="nav-links">

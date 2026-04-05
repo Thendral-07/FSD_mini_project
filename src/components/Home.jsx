@@ -92,7 +92,7 @@ export default function Home() {
 
   return (
     <div className="home">
-      <h1>🍊 Mealify</h1>
+      <h1>DishFlash</h1>
 
       <div className="controls">
         <input
