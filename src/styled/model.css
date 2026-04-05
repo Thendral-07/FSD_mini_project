@@ -1,0 +1,293 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 30px;
+  width: 90%;
+  max-width: 650px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: modalSlideUp 0.3s ease-out;
+  position: relative;
+}
+
+.modal img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  height: 300px;
+  object-fit: cover;
+}
+
+.modal h2 {
+  color: #ff6f00;
+  margin-bottom: 10px;
+  margin-top: 0;
+}
+
+.modal h3 {
+  color: #333;
+  font-size: 1.1rem;
+  margin-top: 15px;
+  margin-bottom: 12px;
+}
+
+.modal p {
+  color: #555;
+  line-height: 1.6;
+  margin: 10px 0;
+  font-size: 0.95rem;
+}
+
+.meal-category {
+  color: #999;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.ingredients-section {
+  background: rgba(255, 111, 0, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  border-left: 4px solid #ff6f00;
+}
+
+.ingredients-section h3 {
+  margin: 0 0 12px;
+  color: #ff6f00;
+  font-size: 1.1rem;
+}
+
+.ingredients-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ingredients-list li {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 111, 0, 0.1);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ingredient-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.ingredient-measure {
+  color: #999;
+  font-style: italic;
+}
+
+.instructions-section {
+  background: rgba(100, 150, 200, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  border-left: 4px solid #4a7dc1;
+}
+
+.instructions-section h3 {
+  margin: 0 0 12px;
+  color: #4a7dc1;
+  font-size: 1.1rem;
+}
+
+.instructions-text {
+  color: #555;
+  line-height: 1.7;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.video-link {
+  text-decoration: none;
+  display: block;
+  margin-top: 15px;
+}
+
+.yt-btn {
+  background: linear-gradient(135deg, #ff0000, #cc0000) !important;
+  width: 100%;
+  margin: 0 !important;
+  padding: 14px 28px !important;
+  box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3) !important;
+  border-radius: 10px !important;
+}
+
+.yt-btn:hover {
+  box-shadow: 0 12px 30px rgba(255, 0, 0, 0.4) !important;
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 111, 0, 0.2) !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none !important;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #333;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: rgba(255, 111, 0, 0.3) !important;
+  transform: scale(1.1);
+}
+
+/* Dark mode support */
+.dark .modal {
+  background: rgba(30, 30, 50, 0.95);
+  backdrop-filter: blur(20px);
+  color: white;
+  border: 1px solid rgba(255, 183, 77, 0.2);
+}
+
+.dark .modal h2 {
+  color: #ffb74d;
+}
+
+.dark .modal h3 {
+  color: #ffb74d;
+}
+
+.dark .modal p,
+.dark .instructions-text {
+  color: #e0e0e0;
+}
+
+.dark .meal-category {
+  color: #aaa;
+}
+
+.dark .ingredients-section {
+  background: rgba(255, 183, 77, 0.05);
+  border-left-color: #ffb74d;
+}
+
+.dark .ingredients-section h3 {
+  color: #ffb74d;
+}
+
+.dark .ingredients-list li {
+  background: rgba(255, 183, 77, 0.08);
+  border-color: rgba(255, 183, 77, 0.15);
+}
+
+.dark .ingredient-name {
+  color: #ffb74d;
+}
+
+.dark .ingredient-measure {
+  color: #999;
+}
+
+.dark .instructions-section {
+  background: rgba(100, 150, 200, 0.08);
+  border-left-color: #64b5f6;
+}
+
+.dark .instructions-section h3 {
+  color: #64b5f6;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .ingredients-list {
+    grid-template-columns: 1fr;
+  }
+
+  .modal img {
+    height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 15px;
+    max-height: 95vh;
+  }
+
+  .modal img {
+    height: 200px;
+  }
+
+  .close {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .ingredients-list {
+    gap: 6px;
+  }
+
+  .ingredients-list li {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+}

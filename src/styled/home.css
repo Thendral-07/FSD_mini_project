@@ -1,0 +1,346 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.home {
+  text-align: center;
+  padding: 40px 20px;
+  min-height: calc(100vh - 80px);
+  background: transparent;
+}
+
+h1 {
+  font-size: 2.8rem;
+  color: #ff6f00;
+  margin-bottom: 20px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  animation: slideDown 0.6s ease-out;
+}
+
+.search-info {
+  text-align: center;
+  color: #666;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 20px 0;
+}
+
+.dark {
+  background: transparent;
+  color: #e0e0e0;
+}
+
+.dark h1 {
+  color: #ffb74d;
+}
+
+.dark .search-info {
+  color: #999;
+}
+
+.dark .card {
+  background: rgba(30, 30, 50, 0.6);
+  backdrop-filter: blur(10px);
+  color: white;
+  border: 1px solid rgba(255, 183, 77, 0.2);
+}
+
+.dark input {
+  background: rgba(26, 26, 40, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 183, 77, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.dark input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dark input:focus {
+  border-color: #ff8f00;
+  box-shadow: 0 0 15px rgba(255, 143, 0, 0.3), inset 0 0 10px rgba(255, 143, 0, 0.1);
+  background: rgba(26, 26, 40, 0.9);
+}
+
+.dark button {
+  background: linear-gradient(135deg, #ff6f00, #ff8f00);
+  border: none;
+  box-shadow: 0 8px 20px rgba(255, 111, 0, 0.3);
+}
+
+.dark button:hover {
+  box-shadow: 0 12px 30px rgba(255, 111, 0, 0.5);
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+input {
+  padding: 14px 20px;
+  width: 320px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 111, 0, 0.3);
+  outline: none;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: inherit;
+  font-size: 1rem;
+  color: #333;
+}
+
+input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+input:focus {
+  border-color: #ff6f00;
+  box-shadow: 0 0 20px rgba(255, 111, 0, 0.4), inset 0 0 15px rgba(255, 111, 0, 0.05);
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+}
+
+button {
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #ff6f00, #ff8f00);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  box-shadow: 0 8px 20px rgba(255, 111, 0, 0.3);
+  backdrop-filter: blur(5px);
+}
+
+button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(255, 111, 0, 0.4);
+}
+
+button:active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 111, 0, 0.3);
+}
+
+.reset-btn {
+  background: linear-gradient(135deg, rgba(255, 111, 0, 0.8), rgba(255, 143, 0, 0.8));
+  padding: 14px 20px;
+}
+
+.reset-btn:hover {
+  background: linear-gradient(135deg, #ff6f00, #ff8f00);
+}
+
+/* Meal List & Cards */
+.meal-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: left;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 50px rgba(255, 111, 0, 0.25);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 111, 0, 0.4);
+}
+
+.card:active {
+  transform: translateY(-8px);
+}
+
+.card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card:hover img {
+  filter: brightness(1.1);
+}
+
+.card h3 {
+  margin: 14px 0 5px;
+  color: #ff6f00;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.category {
+  color: #ff6f00;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* Details */
+.details {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.details ul {
+  padding-left: 20px;
+}
+
+/* Skeleton Loading */
+.skeleton-card {
+  height: 340px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 25%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0.5) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Error Message */
+.error {
+  background: rgba(244, 67, 54, 0.2);
+  backdrop-filter: blur(10px);
+  color: #d32f2f;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin: 20px auto;
+  max-width: 600px;
+  border: 1px solid rgba(244, 67, 54, 0.4);
+  font-weight: 500;
+}
+
+/* Modal styles are imported from model.css */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .home {
+    padding: 30px 15px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .controls {
+    gap: 10px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  input {
+    width: 100%;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .meal-list {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .card img {
+    height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home {
+    padding: 20px 10px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  input,
+  button {
+    width: 100%;
+  }
+
+  input {
+    padding: 12px;
+  }
+
+  button {
+    padding: 12px;
+  }
+
+  .meal-list {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 10px;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .card img {
+    height: 200px;
+  }
+
+  .card h3 {
+    font-size: 1rem;
+  }
+}
