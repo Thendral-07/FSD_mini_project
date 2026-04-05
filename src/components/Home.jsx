@@ -8,36 +8,28 @@ export default function Home() {
   const [ingredient, setIngredient] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [searchType, setSearchType] = useState("category"); // 'category' or 'ingredient'
 
-  // Fetch Indian recipes by category
-  const fetchIndianMeals = async () => {
+  // Fetch random meals
+  const fetchMeals = async () => {
     setLoading(true);
     setError("");
-    setSearchType("category");
     setIngredient("");
 
     try {
-      const res = await fetch(
-        "https://www.themealdb.com/api/json/v1/1/filter.php?c=Indian"
-      );
+      const promises = Array(12)
+        .fill(0)
+        .map(() =>
+          fetch("https://www.themealdb.com/api/json/v1/1/random.php").then(
+            (res) => res.json()
+          )
+        );
 
-      if (!res.ok) {
-        throw new Error("API Failed");
-      }
-
-      const data = await res.json();
-
-      if (!data.meals) {
-        throw new Error("No Indian meals found");
-      }
-
-      // Get 12 random meals from the Indian category
-      const shuffled = data.meals.sort(() => 0.5 - Math.random());
-      setMeals(shuffled.slice(0, 12));
+      const results = await Promise.all(promises);
+      const randomMeals = results.map((data) => data.meals[0]);
+      setMeals(randomMeals);
     } catch (err) {
       console.log(err);
-      setError("Failed to fetch Indian recipes. Try again.");
+      setError("Failed to fetch meals. Try again.");
     }
 
     setLoading(false);
@@ -52,7 +44,6 @@ export default function Home() {
 
     setLoading(true);
     setError("");
-    setSearchType("ingredient");
 
     try {
       const res = await fetch(
@@ -72,7 +63,6 @@ export default function Home() {
         return;
       }
 
-      // Show first 12 meals with that ingredient
       setMeals(data.meals.slice(0, 12));
     } catch (err) {
       console.log(err);
@@ -86,7 +76,7 @@ export default function Home() {
     if (ingredient.trim()) {
       searchByIngredient(ingredient);
     } else {
-      fetchIndianMeals();
+      fetchMeals();
     }
   };
 
@@ -97,7 +87,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchIndianMeals();
+    fetchMeals();
   }, []);
 
   return (
@@ -117,8 +107,8 @@ export default function Home() {
         </button>
 
         {ingredient && (
-          <button onClick={fetchIndianMeals} className="reset-btn">
-            Show Indian Recipes
+          <button onClick={fetchMeals} className="reset-btn">
+            Get Random Meals
           </button>
         )}
       </div>
@@ -138,16 +128,7 @@ export default function Home() {
             ))}
         </div>
       ) : (
-        <>
-          {meals.length > 0 && (
-            <p className="search-info">
-              {searchType === "ingredient"
-                ? `Found ${meals.length} meals with "${ingredient}"`
-                : "Showing Popular Indian Recipes"}
-            </p>
-          )}
-          <MealList meals={meals} />
-        </>
+        <MealList meals={meals} />
       )}
     </div>
   );
