@@ -113,12 +113,11 @@ export default function Contact() {
         <div className="contact-content">
           <section className="contact-info">
             <div className="info-card">
-              <div className="info-icon">📍</div>
-              <h3>Visit Us</h3>
-              <p>123 Meal Street<br />Food City, FC 12345</p>
-            </div>
-            <div className="info-card">
-              <div className="info-icon">📞</div>
+              <div className="info-icon" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 512 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M391.7 330.3c-18.8-18.8-49.2-18.8-68 0l-35.1 35.1c-5.4 5.4-13 8.4-20.9 8.4-5.3 0-10.7-1.2-15.6-3.7C206 353.7 158.3 325.8 121.1 288.6c-37.2-37.2-65.1-84.8-75.8-132.8-2.5-4.9-3.7-10.3-3.7-15.6 0-7.9 3-15.5 8.4-20.9l35.1-35.1c18.8-18.8 18.8-49.2 0-68L87 32.3c-9.4-9.4-24.6-12.4-37.4-7.2C24.4 32.6 0 57 0 87.2c0 88.8 35.8 172.2 93.5 229.9 57.7 57.7 141.1 93.5 229.9 93.5 30.2 0 54.6-24.4 62.2-49.6 5.2-12.8 2.2-28-7.2-37.4l-48.7-48.7z"/>
+                </svg>
+              </div>
               <h3>Call Us</h3>
               <p><a href="tel:+1234567890">+1 (234) 567-890</a></p>
               <p>Available Monday - Friday, 9AM - 6PM</p>
