@@ -65,7 +65,7 @@ export default function About() {
           <div className="mission-card">
             <h2>🚀 Our Values</h2>
             <p>
-              Innovation, User-Centricity, Quality, and Sustainability guide every decision we make in building Mealify.
+              Innovation, User-Centricity, Quality, and Sustainability guide every decision we make in building DishFlash.
             </p>
           </div>
         </div>

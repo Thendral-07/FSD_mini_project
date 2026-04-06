@@ -140,7 +140,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* ERROR UI */}
       {error && <p className="error">{error}</p>}
 
       <ImagePreview />
