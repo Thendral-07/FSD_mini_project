@@ -35,9 +35,29 @@ export default function Home() {
     setLoading(false);
   };
 
-  // Search meals by ingredient
+  const parseIngredients = (input) =>
+    input
+      .split(/[\s,]+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+  const fetchMealsByIngredient = async (term) => {
+    const res = await fetch(
+      `https://www.themealdb.com/api/json/v1/1/filter.php?i=${term}`
+    );
+
+    if (!res.ok) {
+      throw new Error("API Failed");
+    }
+
+    const data = await res.json();
+    return data.meals || [];
+  };
+
+  // Search meals by ingredient(s)
   const searchByIngredient = async (ingredientName) => {
-    if (!ingredientName.trim()) {
+    const terms = parseIngredients(ingredientName);
+    if (terms.length === 0) {
       setError("Please enter an ingredient");
       return;
     }
@@ -46,27 +66,34 @@ export default function Home() {
     setError("");
 
     try {
-      const res = await fetch(
-        `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredientName.trim()}`
+      const results = await Promise.all(
+        terms.map((term) => fetchMealsByIngredient(term))
       );
 
-      if (!res.ok) {
-        throw new Error("API Failed");
-      }
-
-      const data = await res.json();
-
-      if (!data.meals || data.meals.length === 0) {
-        setError(`No meals found with ingredient: "${ingredientName}"`);
+      if (results.some((mealsForTerm) => mealsForTerm.length === 0)) {
+        setError(`No meals found with ingredient(s): "${ingredientName}"`);
         setMeals([]);
         setLoading(false);
         return;
       }
 
-      setMeals(data.meals.slice(0, 12));
+      const intersection = results.reduce((sharedMeals, mealsForTerm) => {
+        const ids = new Set(mealsForTerm.map((meal) => meal.idMeal));
+        return sharedMeals.filter((meal) => ids.has(meal.idMeal));
+      });
+
+      if (intersection.length === 0) {
+        setError(`No meals found with ingredient(s): "${ingredientName}"`);
+        setMeals([]);
+        setLoading(false);
+        return;
+      }
+
+      setMeals(intersection.slice(0, 12));
     } catch (err) {
       console.log(err);
       setError("Failed to search by ingredient. Try again.");
+      setMeals([]);
     }
 
     setLoading(false);
