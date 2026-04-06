@@ -119,7 +119,7 @@ export default function Contact() {
                 </svg>
               </div>
               <h3>Call Us</h3>
-              <p><a href="tel:+1234567890">+1 (234) 567-890</a></p>
+              <p><a href="">+91 9876543210</a></p>
               <p>Available Monday - Friday, 9AM - 6PM</p>
             </div>
             <div className="info-card">
