@@ -1,26 +1,36 @@
-import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { AuthContext } from "../context/AuthContext";
 import "../styled/navbar.css";
 
 export default function Navbar() {
-  const { toggleTheme } = useContext(ThemeContext);
+  const { toggleTheme, theme } = useContext(ThemeContext);
   const { isAuthenticated, user, logout } = useContext(AuthContext);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="nav">
-      <h2 className="nav-logo">DishFlash</h2>
+    <nav className={`nav ${scrolled ? "scrolled" : ""}`}>
+      <Link to="/" className="nav-logo-link">
+        <h2 className="nav-logo"><span>⚡</span>DishFlash</h2>
+      </Link>
 
       <div className="nav-links">
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/contact">Contact</Link>
+        <Link to="/" className={location.pathname === "/" ? "active" : ""}>Home</Link>
+        <Link to="/about" className={location.pathname === "/about" ? "active" : ""}>About</Link>
+        <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>Contact</Link>
         {isAuthenticated && (
           <>
-            <Link to="/favorites">Favorites</Link>
-            <Link to="/history">History</Link>
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to="/favorites" className={location.pathname === "/favorites" ? "active" : ""}>Favorites</Link>
+            <Link to="/history" className={location.pathname === "/history" ? "active" : ""}>History</Link>
+            <Link to="/dashboard" className={location.pathname === "/dashboard" ? "active" : ""}>Dashboard</Link>
           </>
         )}
       </div>
