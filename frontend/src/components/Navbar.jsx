@@ -19,7 +19,7 @@ export default function Navbar() {
   return (
     <nav className={`nav ${scrolled ? "scrolled" : ""}`}>
       <Link to="/" className="nav-logo-link">
-        <h2 className="nav-logo"><span>⚡</span>DishFlash</h2>
+        <h2 className="nav-logo">DishFlash</h2>
       </Link>
 
       <div className="nav-links">
