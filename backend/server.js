@@ -19,7 +19,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/meals", mealRoutes);
 app.use("/api/contact", contactRoutes);
 
-// Health check
+// Health check & Root
+app.get("/", (req, res) => {
+  res.send("<h1>DishFlash API is running...</h1><p>Append /api/health to check status.</p>");
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
