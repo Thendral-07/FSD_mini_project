@@ -115,6 +115,10 @@ p {
   background: inherit; 
 }
 
+main {
+  padding-top: 110px; /* Global fix for Navbar overlap */
+}
+
 code {
   font-family: var(--mono);
   font-size: 15px;
