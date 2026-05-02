@@ -22,7 +22,7 @@ export default function Footer() {
 
         {/* Column 1: Brand */}
         <div>
-          <p className="footer__brand-title">Meal<span>ify</span></p>
+          <p className="footer__brand-title">Dish<span>Flash</span></p>
           <p className="footer__brand-text">
             Discover amazing meals from around the world. Let us handle the
             "what's for dinner?" question every single day.
