@@ -130,7 +130,7 @@ export default function Contact() {
               <div className="info-icon">📞</div>
               <h3>Call Us</h3>
               <p><a href="tel:+1234567890">Contact will be updated soon</a></p>
-              <p>Available Monday - Friday, 9AM - 6PM</p>
+              <p>After that you can reach us</p>
             </div>
             <div className="info-card">
               <div className="info-icon">✉️</div>
