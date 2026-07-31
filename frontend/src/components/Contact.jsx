@@ -124,19 +124,19 @@ export default function Contact() {
             <div className="info-card">
               <div className="info-icon">📍</div>
               <h3>Visit Us</h3>
-              <p>123 Meal Street<br />Food City, FC 12345</p>
+              <p>123 Meal Street<br />Contact will be updated soon</p>
             </div>
             <div className="info-card">
               <div className="info-icon">📞</div>
               <h3>Call Us</h3>
-              <p><a href="tel:+1234567890">+1 (234) 567-890</a></p>
+              <p><a href="tel:+1234567890">Contact will be updated soon</a></p>
               <p>Available Monday - Friday, 9AM - 6PM</p>
             </div>
             <div className="info-card">
               <div className="info-icon">✉️</div>
               <h3>Email Us</h3>
               <p><a href="mailto:support@
-              .com">support@mealify.com</a></p>
+              .com">tamilthendralkp.24cse@kongu.edu</a></p>
               <p>We'll get back to you within 24 hours</p>
             </div>
           </section>
