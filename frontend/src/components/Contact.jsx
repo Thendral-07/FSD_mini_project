@@ -124,7 +124,7 @@ export default function Contact() {
             <div className="info-card">
               <div className="info-icon">📍</div>
               <h3>Visit Us</h3>
-              <p>123 Meal Street<br />Contact will be updated soon</p>
+              <p> Address will be updated soon<br />After uploading address you can reach us</p>
             </div>
             <div className="info-card">
               <div className="info-icon">📞</div>
