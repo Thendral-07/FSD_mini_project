@@ -7,7 +7,7 @@ const teamMembers = [
     role: "24CSR319",
     bio: "Passionate about creating responsive and intuitive user interfaces with React.",
     avatar: "👨‍💻",
-    email: "taruns.24cse@kongu.edu",
+    email: "tamilthendralkp.24cse@kongu.edu",
   },
   {
     id: 2,
@@ -15,23 +15,23 @@ const teamMembers = [
     role: "24CSR349",
     bio: "Learning about frontend development.",
     avatar: "👨‍💻",
-    email: "yadhavvengadesht.24@kongu.edu",
+    email: "vishalm.24@kongu.edu",
   },
   {
     id: 3,
     name: "Nishant M",
-    role: "25CSR",
+    role: "25CSR194",
     bio: "Learning about frontend development.",
     avatar: "👨‍💻",
-    email: "vishalm.24cse@kongu.edu",
+    email: "nishantm.25cse@kongu.edu",
   },
   {
     id: 4,
     name: "Rahul Yeswanth K",
-    role: "25CSR194",
+    role: "25CSR229",
     bio: "Learning about frontend development.",
     avatar: "👨‍💻",
-    email: "tamilthendralkp.24cse@kongu.edu",
+    email: "rahulyeswanthk.25cse@kongu.edu",
   },
 ];
 
