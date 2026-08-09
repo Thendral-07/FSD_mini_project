@@ -3,7 +3,7 @@ import { AuthContext } from "./AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, CheckCircle, X, PlayCircle, Loader2, Utensils, Clock, ListPlus, Calculator, Flame, Minus, Plus as PlusIcon } from "lucide-react";
 import { Button } from "../components/ui/Button";
-import { calculateMealCalories } from "../utils/calories";
+import { calculateMealCalories, calculateMealMacros } from "../utils/calories";
 
 export default function MealModel({ meal, onClose, loading }) {
   const { isAuthenticated, authFetch, user } = useContext(AuthContext);
@@ -61,8 +61,9 @@ export default function MealModel({ meal, onClose, loading }) {
     }
   }
 
-  // Calculate calories based on ingredients!
-  const baseCalories = calculateMealCalories(ingredients);
+  // Calculate calories and macros based on ingredients!
+  const macros = calculateMealMacros(ingredients);
+  const baseCalories = macros.calories;
   const totalCalories = baseCalories * servings;
   const caloriesPerServe = baseCalories; // Assume base calculation is for 1 serving
   
@@ -94,10 +95,18 @@ export default function MealModel({ meal, onClose, loading }) {
           if (nutRes.ok) {
             const nutData = await nutRes.json();
             const currentCals = nutData.calories || 0;
+            const currentProtein = nutData.protein || 0;
+            const currentCarbs = nutData.carbs || 0;
+            const currentFat = nutData.fat || 0;
             await authFetch(`/nutrition/${today}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ calories: currentCals + totalCalories })
+              body: JSON.stringify({ 
+                calories: currentCals + totalCalories,
+                protein: currentProtein + (macros.protein * servings),
+                carbs: currentCarbs + (macros.carbs * servings),
+                fat: currentFat + (macros.fat * servings)
+              })
             });
           }
         } catch (nutErr) {
@@ -260,6 +269,20 @@ export default function MealModel({ meal, onClose, loading }) {
                 <span className="flex items-center gap-1 text-orange-400">
                   <Flame className="w-4 h-4" /> {totalCalories} kcal total ({caloriesPerServe} kcal/serve)
                 </span>
+              </div>
+              <div className="flex gap-3 mt-3">
+                <div className="flex flex-col items-center bg-black/30 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2">
+                  <span className="text-[10px] text-white/70 uppercase font-bold tracking-widest">Protein</span>
+                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.protein * servings}g</span>
+                </div>
+                <div className="flex flex-col items-center bg-black/30 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2">
+                  <span className="text-[10px] text-white/70 uppercase font-bold tracking-widest">Carbs</span>
+                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.carbs * servings}g</span>
+                </div>
+                <div className="flex flex-col items-center bg-black/30 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2">
+                  <span className="text-[10px] text-white/70 uppercase font-bold tracking-widest">Fat</span>
+                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.fat * servings}g</span>
+                </div>
               </div>
             </div>
           </div>

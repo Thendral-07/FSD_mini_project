@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
-import { Loader2, Flame, Search as SearchIcon, Activity } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Loader2, Flame, Search as SearchIcon, Activity, Utensils } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line } from "recharts";
 import { AnimatePresence, motion } from "framer-motion";
 import MealModel from "../context/MealModel";
 
@@ -44,6 +44,9 @@ export default function Dashboard() {
              return {
                name: d.toLocaleDateString("en-US", { weekday: "short" }),
                calories: log.calories,
+               protein: log.protein || 0,
+               carbs: log.carbs || 0,
+               fat: log.fat || 0,
                date: dateStr
              };
           });
@@ -157,6 +160,79 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+        </motion.div>
+
+        {/* Macro Distribution */}
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Utensils className="w-5 h-5 text-orange-500" /> 
+                Macronutrient Breakdown (g)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+            {nutrition.length > 0 ? (
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={nutrition} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: "hsl(var(--card))", borderRadius: "8px", border: "1px solid hsl(var(--border))" }}
+                      itemStyle={{ color: "hsl(var(--foreground))" }}
+                      cursor={{ fill: "hsl(var(--muted))", opacity: 0.2 }}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                    <Bar dataKey="protein" name="Protein (g)" stackId="a" fill="#f97316" radius={[0, 0, 4, 4]} />
+                    <Bar dataKey="carbs" name="Carbs (g)" stackId="a" fill="#3b82f6" />
+                    <Bar dataKey="fat" name="Fat (g)" stackId="a" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                No nutrition data found.
+              </div>
+            )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Macro Trend */}
+        <motion.div variants={itemVariants} className="lg:col-span-1">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-purple-500" /> 
+                Macro Trends
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+            {nutrition.length > 0 ? (
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={nutrition} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: "hsl(var(--card))", borderRadius: "8px", border: "1px solid hsl(var(--border))" }}
+                    />
+                    <Line type="monotone" dataKey="protein" name="Protein" stroke="#f97316" strokeWidth={2} dot={{ r: 3, fill: "#f97316" }} activeDot={{ r: 5 }} />
+                    <Line type="monotone" dataKey="carbs" name="Carbs" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: "#3b82f6" }} activeDot={{ r: 5 }} />
+                    <Line type="monotone" dataKey="fat" name="Fat" stroke="#10b981" strokeWidth={2} dot={{ r: 3, fill: "#10b981" }} activeDot={{ r: 5 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                No data.
+              </div>
+            )}
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Frequently Cooked */}
