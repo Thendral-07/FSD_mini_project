@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import "../styled/navbar.css";
 
 export default function Navbar() {
-  const { toggleTheme, theme } = useContext(ThemeContext);
+  const { toggleTheme, isDark } = useContext(ThemeContext);
   const { isAuthenticated, user, logout } = useContext(AuthContext);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -75,8 +75,8 @@ export default function Navbar() {
             Login
           </Link>
         )}
-        <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
-          🌙
+        <button className="theme-toggle flex items-center justify-center" onClick={toggleTheme} title="Toggle theme">
+          {isDark ? "☀️" : "🌙"}
         </button>
       </div>
     </nav>
