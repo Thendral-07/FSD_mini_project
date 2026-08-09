@@ -75,9 +75,11 @@ export default function Navbar() {
             Login
           </Link>
         )}
-        <button className="theme-toggle flex items-center justify-center" onClick={toggleTheme} title="Toggle theme">
-          {isDark ? "☀️" : "🌙"}
-        </button>
+        <div className="theme-toggle-container" onClick={toggleTheme} title="Toggle theme">
+          <div className={`theme-toggle-switch ${isDark ? 'dark' : 'light'}`}>
+            <span className="theme-toggle-icon">{isDark ? "🌙" : "☀️"}</span>
+          </div>
+        </div>
       </div>
     </nav>
   );
