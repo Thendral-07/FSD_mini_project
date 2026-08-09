@@ -87,6 +87,22 @@ export default function MealModel({ meal, onClose, loading }) {
       });
       if (res.ok) {
         setCooked(true);
+        // Automatically log nutrition for today
+        try {
+          const today = new Date().toISOString().split("T")[0];
+          const nutRes = await authFetch(`/nutrition/${today}`);
+          if (nutRes.ok) {
+            const nutData = await nutRes.json();
+            const currentCals = nutData.calories || 0;
+            await authFetch(`/nutrition/${today}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ calories: currentCals + totalCalories })
+            });
+          }
+        } catch (nutErr) {
+          console.error("Error logging nutrition:", nutErr);
+        }
       }
     } catch (err) {
       console.error("Error marking cooked:", err);
