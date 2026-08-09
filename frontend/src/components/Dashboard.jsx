@@ -39,7 +39,7 @@ export default function Dashboard() {
            const d = new Date(dateStr);
            return {
              name: d.toLocaleDateString("en-US", { weekday: "short" }),
-             calories: log.totalCalories,
+             calories: log.calories,
              date: dateStr
            };
         });

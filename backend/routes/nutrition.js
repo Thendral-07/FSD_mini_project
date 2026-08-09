@@ -4,6 +4,18 @@ import NutritionLog from "../models/NutritionLog.js";
 
 const router = Router();
 
+// Get all nutrition logs (for charts from day 1)
+router.get("/all", auth, async (req, res) => {
+    try {
+      const logs = await NutritionLog.find({ userId: req.userId })
+        .sort({ date: 1 }); // Sort ascending so Day 1 is first
+      res.json(logs);
+    } catch (err) {
+      console.error("Error fetching all nutrition logs:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+});
+
 // Get nutrition for a specific date
 router.get("/:date", auth, async (req, res) => {
   try {
@@ -44,18 +56,6 @@ router.get("/recent/:days", auth, async (req, res) => {
       res.json(logs);
     } catch (err) {
       console.error("Error fetching recent nutrition logs:", err);
-      res.status(500).json({ error: "Server error" });
-    }
-});
-
-// Get all nutrition logs (for charts from day 1)
-router.get("/all", auth, async (req, res) => {
-    try {
-      const logs = await NutritionLog.find({ userId: req.userId })
-        .sort({ date: 1 }); // Sort ascending so Day 1 is first
-      res.json(logs);
-    } catch (err) {
-      console.error("Error fetching all nutrition logs:", err);
       res.status(500).json({ error: "Server error" });
     }
 });
