@@ -33,16 +33,20 @@ export default function Dashboard() {
       if (nutritionRes.ok) {
         const nutData = await nutritionRes.json();
         // format data for recharts
-        const chartData = nutData.map(log => {
-           // date is YYYY-MM-DD
-           const dateStr = log.date;
-           const d = new Date(dateStr);
-           return {
-             name: d.toLocaleDateString("en-US", { weekday: "short" }),
-             calories: log.calories,
-             date: dateStr
-           };
-        });
+        const chartData = nutData
+          .filter(log => {
+             const d = new Date(log.date);
+             return !isNaN(d.getTime());
+          })
+          .map(log => {
+             const dateStr = log.date;
+             const d = new Date(dateStr);
+             return {
+               name: d.toLocaleDateString("en-US", { weekday: "short" }),
+               calories: log.calories,
+               date: dateStr
+             };
+          });
         // Sort by date just in case
         chartData.sort((a, b) => new Date(a.date) - new Date(b.date));
         setNutrition(chartData);
