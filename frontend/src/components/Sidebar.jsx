@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Home, Compass, Heart, History, User, Calendar, Activity, ShoppingCart, LogOut, FileText, Sparkles, Users } from "lucide-react";
+import { ThemeContext } from "../context/ThemeContext";
+import { Home, Compass, Heart, History, User, Calendar, Activity, ShoppingCart, LogOut, FileText, Sparkles, Users, Sun, Moon } from "lucide-react";
 import { cn } from "../utils/utils";
 import { motion } from "framer-motion";
+import "../styled/navbar.css";
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useContext(ThemeContext);
   const location = useLocation();
 
   const navItems = [
@@ -60,7 +63,19 @@ const Sidebar = () => {
         })}
       </nav>
 
-      <div className="pt-4 border-t mt-auto">
+      <div className="pt-4 border-t mt-auto flex flex-col gap-4">
+        <div className="flex justify-center w-full pb-2">
+          <div className="theme-toggle-wrapper" onClick={toggleTheme}>
+            <span className={`theme-label ${!isDark ? 'active' : ''}`}>Light</span>
+            <div className="theme-toggle-track">
+              <div className={`theme-toggle-thumb ${isDark ? 'dark' : 'light'}`}>
+                {isDark ? <Moon size={16} strokeWidth={2.5} /> : <Sun size={16} strokeWidth={2.5} />}
+              </div>
+            </div>
+            <span className={`theme-label ${isDark ? 'active' : ''}`}>Dark</span>
+          </div>
+        </div>
+
         {user ? (
           <button
             onClick={logout}

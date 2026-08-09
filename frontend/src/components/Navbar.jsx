@@ -3,6 +3,7 @@ import { useContext, useState, useEffect } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { AuthContext } from "../context/AuthContext";
 import { motion } from "framer-motion";
+import { Sun, Moon } from "lucide-react";
 import "../styled/navbar.css";
 
 export default function Navbar() {
@@ -75,10 +76,14 @@ export default function Navbar() {
             Login
           </Link>
         )}
-        <div className="theme-toggle-container" onClick={toggleTheme} title="Toggle theme">
-          <div className={`theme-toggle-switch ${isDark ? 'dark' : 'light'}`}>
-            <span className="theme-toggle-icon">{isDark ? "🌙" : "☀️"}</span>
+        <div className="theme-toggle-wrapper" onClick={toggleTheme}>
+          <span className={`theme-label ${!isDark ? 'active' : ''}`}>Light</span>
+          <div className="theme-toggle-track">
+            <div className={`theme-toggle-thumb ${isDark ? 'dark' : 'light'}`}>
+              {isDark ? <Moon size={18} strokeWidth={2.5} /> : <Sun size={18} strokeWidth={2.5} />}
+            </div>
           </div>
+          <span className={`theme-label ${isDark ? 'active' : ''}`}>Dark</span>
         </div>
       </div>
     </motion.nav>
