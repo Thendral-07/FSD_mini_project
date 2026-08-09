@@ -1,7 +1,8 @@
-import { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import MealModel from "../context/MealModel";
 import { AuthContext } from "../context/AuthContext";
-import "../styled/meal.css";
+import { Heart } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function MealCard({ meal, favoriteIds = [] }) {
   const { isAuthenticated, authFetch } = useContext(AuthContext);
@@ -65,21 +66,50 @@ export default function MealCard({ meal, favoriteIds = [] }) {
 
   return (
     <>
-      <div className="card" onClick={handleCardClick}>
-        <div className="card-img-wrapper">
-          <img src={meal.strMealThumb} alt={meal.strMeal} />
+      <motion.div 
+        whileHover={{ y: -5 }}
+        className="group cursor-pointer bg-card rounded-2xl overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
+        onClick={handleCardClick}
+      >
+        <div className="relative aspect-square overflow-hidden">
+          <img 
+            src={meal.strMealThumb} 
+            alt={meal.strMeal} 
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
           {isAuthenticated && (
             <button
-              className={`card-heart ${isFav ? "hearted" : ""}`}
               onClick={handleHeartClick}
-              title={isFav ? "Remove from favorites" : "Add to favorites"}
+              className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-background transition-colors z-10"
             >
-              {isFav ? "❤️" : "🤍"}
+              <Heart 
+                className={`w-5 h-5 transition-colors ${isFav ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} 
+              />
             </button>
           )}
         </div>
-        <h3>{meal.strMeal}</h3>
-      </div>
+        
+        <div className="p-4 flex-1 flex flex-col justify-between">
+          <h3 className="font-semibold text-lg line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+            {meal.strMeal}
+          </h3>
+          <div className="mt-3 flex gap-2">
+            {meal.strCategory && (
+              <span className="px-2.5 py-1 bg-secondary text-secondary-foreground text-xs rounded-md font-medium">
+                {meal.strCategory}
+              </span>
+            )}
+            {meal.strArea && (
+              <span className="px-2.5 py-1 bg-secondary text-secondary-foreground text-xs rounded-md font-medium">
+                {meal.strArea}
+              </span>
+            )}
+          </div>
+        </div>
+      </motion.div>
 
       {open && (
         <MealModel meal={fullMeal || meal} onClose={() => {

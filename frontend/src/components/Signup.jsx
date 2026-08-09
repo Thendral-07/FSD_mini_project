@@ -1,18 +1,20 @@
-import { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import "../styled/auth.css";
+import { useAuth } from "../context/AuthContext";
+import { Button } from "./ui/Button";
+import { Input } from "./ui/Input";
+import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Signup() {
-  const { signup } = useContext(AuthContext);
+  const { signup } = useAuth();
   const navigate = useNavigate();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,20 +25,22 @@ export default function Signup() {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    // Email validation: starts with a letter, basic email format
+    const emailRegex = /^[a-zA-Z][a-zA-Z0-9._-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address starting with a letter.");
       return;
     }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+    
+    if (password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
     }
 
     setLoading(true);
     try {
       await signup(name, email, password);
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,84 +49,114 @@ export default function Signup() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1 className="auth-title">Create Account</h1>
-          <p className="auth-subtitle">
-            Join DishFlash and start tracking your culinary journey
-          </p>
+    <div className="min-h-[80vh] flex items-center justify-center relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-orange-100 via-background to-background dark:from-orange-950/30 dark:via-background dark:to-background">
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.5, 0.2],
+          }}
+          transition={{
+            duration: 9,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute top-10 -right-20 w-80 h-80 bg-primary/20 rounded-full blur-3xl pointer-events-none"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.4, 1],
+            opacity: [0.1, 0.3, 0.1],
+          }}
+          transition={{
+            duration: 11,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+          className="absolute -bottom-20 -left-20 w-96 h-96 bg-orange-400/20 rounded-full blur-3xl pointer-events-none"
+        />
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-md p-8 bg-card border rounded-2xl shadow-xl relative overflow-hidden"
+      >
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 to-primary"></div>
+        
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold tracking-tight">Create an Account</h1>
+          <p className="text-muted-foreground mt-2">Join DishFlash to save and plan meals</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          {error && <div className="auth-error">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-lg">
+              {error}
+            </div>
+          )}
 
-          <div className="auth-field">
-            <label htmlFor="signup-name">Full Name</label>
-            <input
-              id="signup-name"
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="name">Full Name</label>
+            <Input
+              id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="John Doe"
-              autoComplete="name"
+              required
             />
           </div>
 
-          <div className="auth-field">
-            <label htmlFor="signup-email">Email Address</label>
-            <input
-              id="signup-email"
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="email">Email Address</label>
+            <Input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              autoComplete="email"
+              required
             />
           </div>
 
-          <div className="auth-field">
-            <label htmlFor="signup-password">Password</label>
-            <input
-              id="signup-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
-              autoComplete="new-password"
-            />
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="password">Password</label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
-          <div className="auth-field">
-            <label htmlFor="signup-confirm">Confirm Password</label>
-            <input
-              id="signup-confirm"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repeat your password"
-              autoComplete="new-password"
-            />
-          </div>
-
-          <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? (
-              <>
-                <span className="auth-spinner"></span> Creating Account...
-              </>
-            ) : (
-              "Create Account"
-            )}
-          </button>
+          <Button type="submit" className="w-full mt-6" disabled={loading}>
+            {loading ? "Creating Account..." : "Sign Up"}
+          </Button>
         </form>
 
-        <p className="auth-footer-text">
+        <p className="text-center mt-6 text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="auth-link">
-            Sign in
+          <Link to="/login" className="text-primary font-medium hover:underline">
+            Log in
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

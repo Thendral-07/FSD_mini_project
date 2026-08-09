@@ -1,6 +1,8 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 
 export const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
@@ -81,15 +83,21 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
   };
 
-  // Helper for authenticated API calls
   const authFetch = async (url, options = {}) => {
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
+    };
+
+    // Let the browser set the Content-Type automatically (with boundary) for FormData
+    if (options.body instanceof FormData) {
+      delete headers["Content-Type"];
+    }
+
     return fetch(`${API_URL}${url}`, {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        ...options.headers,
-      },
+      headers,
     });
   };
 
