@@ -25,6 +25,11 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ error: "All fields are required." });
     }
 
+    const emailRegex = /^[a-zA-Z][a-zA-Z0-9._-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ error: "Please enter a valid email address starting with a letter." });
+    }
+
     if (password.length < 6) {
       return res
         .status(400)
@@ -70,6 +75,11 @@ router.post("/login", async (req, res) => {
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required." });
+    }
+
+    const emailRegex = /^[a-zA-Z][a-zA-Z0-9._-]*@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ error: "Please enter a valid email address starting with a letter." });
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });

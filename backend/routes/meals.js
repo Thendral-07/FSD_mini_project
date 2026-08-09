@@ -1,9 +1,12 @@
+
+
 import { Router } from "express";
 import mongoose from "mongoose";
 import auth from "../middleware/auth.js";
 import CookedMeal from "../models/CookedMeal.js";
 import Favorite from "../models/Favorite.js";
 import SearchHistory from "../models/SearchHistory.js";
+import { cacheMiddleware, clearCache } from "../middleware/cache.js";
 
 const router = Router();
 
@@ -27,6 +30,7 @@ router.post("/cooked", auth, async (req, res) => {
       area: area || "",
     });
 
+    clearCache(req.userId);
     res.status(201).json({ message: "Meal marked as cooked!", cooked });
   } catch (err) {
     console.error("Cooked meal error:", err);
@@ -35,7 +39,7 @@ router.post("/cooked", auth, async (req, res) => {
 });
 
 // GET /api/meals/history — get user's cook history
-router.get("/history", auth, async (req, res) => {
+router.get("/history", auth, cacheMiddleware, async (req, res) => {
   try {
     const history = await CookedMeal.find({ userId: req.userId })
       .sort({ cookedAt: -1 })
@@ -68,6 +72,7 @@ router.post("/favorite", auth, async (req, res) => {
     if (existing) {
       // Remove favorite (toggle off)
       await Favorite.deleteOne({ _id: existing._id });
+      clearCache(req.userId);
       return res.json({ message: "Removed from favorites.", favorited: false });
     }
 
@@ -81,6 +86,7 @@ router.post("/favorite", auth, async (req, res) => {
       area: area || "",
     });
 
+    clearCache(req.userId);
     res.status(201).json({ message: "Added to favorites!", favorited: true });
   } catch (err) {
     console.error("Favorite error:", err);
@@ -89,7 +95,7 @@ router.post("/favorite", auth, async (req, res) => {
 });
 
 // GET /api/meals/favorites — get user's favorites list
-router.get("/favorites", auth, async (req, res) => {
+router.get("/favorites", auth, cacheMiddleware, async (req, res) => {
   try {
     const favorites = await Favorite.find({ userId: req.userId })
       .sort({ savedAt: -1 });
@@ -139,7 +145,7 @@ router.post("/search-log", auth, async (req, res) => {
 // ─── STATS / ANALYTICS ──────────────────────────────────────
 
 // GET /api/meals/stats — frequently cooked meals + frequently searched ingredients
-router.get("/stats", auth, async (req, res) => {
+router.get("/stats", auth, cacheMiddleware, async (req, res) => {
   try {
     // Top 5 frequently cooked meals
     const frequentlyCooked = await CookedMeal.aggregate([
