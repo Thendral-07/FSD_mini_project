@@ -146,7 +146,7 @@ export default function Dashboard() {
                       contentStyle={{ backgroundColor: "hsl(var(--card))", borderRadius: "8px", border: "1px solid hsl(var(--border))" }}
                       itemStyle={{ color: "hsl(var(--primary))" }}
                     />
-                    <Area type="monotone" dataKey="calories" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorCalories)" />
+                    <Area type="monotone" dataKey="calories" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorCalories)" dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -238,7 +238,10 @@ export default function Dashboard() {
         {selectedMeal && (
           <MealModel
             meal={selectedMeal}
-            onClose={() => setSelectedMeal(null)}
+            onClose={() => {
+              setSelectedMeal(null);
+              fetchDashboardData();
+            }}
             loading={mealLoading}
           />
         )}
