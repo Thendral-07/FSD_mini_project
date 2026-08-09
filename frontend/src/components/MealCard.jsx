@@ -64,46 +64,55 @@ export default function MealCard({ meal, favoriteIds = [] }) {
     }
   };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
     <>
       <motion.div 
-        whileHover={{ y: -5 }}
-        className="group cursor-pointer bg-card rounded-2xl overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
+        variants={itemVariants}
+        whileHover={{ y: -8, scale: 1.02 }}
+        className="group cursor-pointer bg-card rounded-2xl overflow-hidden border border-border/50 shadow-sm hover:shadow-[0_10px_40px_-10px_rgba(255,100,50,0.3)] transition-all duration-500 flex flex-col relative"
         onClick={handleCardClick}
       >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
         <div className="relative aspect-square overflow-hidden">
           <img 
             src={meal.strMealThumb} 
             alt={meal.strMeal} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           
           {isAuthenticated && (
-            <button
+            <motion.button
+              whileTap={{ scale: 0.8 }}
+              whileHover={{ scale: 1.1 }}
               onClick={handleHeartClick}
-              className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-background transition-colors z-10"
+              className="absolute top-4 right-4 w-10 h-10 bg-background/80 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-background transition-colors z-20 shadow-lg"
             >
               <Heart 
-                className={`w-5 h-5 transition-colors ${isFav ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} 
+                className={`w-5 h-5 transition-colors ${isFav ? "fill-red-500 text-red-500" : "text-muted-foreground group-hover:text-red-400"}`} 
               />
-            </button>
+            </motion.button>
           )}
         </div>
         
-        <div className="p-4 flex-1 flex flex-col justify-between">
-          <h3 className="font-semibold text-lg line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+        <div className="p-5 flex-1 flex flex-col justify-between relative z-20 bg-card">
+          <h3 className="font-bold text-lg line-clamp-2 leading-tight group-hover:text-primary transition-colors duration-300">
             {meal.strMeal}
           </h3>
-          <div className="mt-3 flex gap-2">
+          <div className="mt-4 flex gap-2 flex-wrap">
             {meal.strCategory && (
-              <span className="px-2.5 py-1 bg-secondary text-secondary-foreground text-xs rounded-md font-medium">
+              <span className="px-3 py-1 bg-secondary text-secondary-foreground text-xs rounded-full font-semibold tracking-wide">
                 {meal.strCategory}
               </span>
             )}
             {meal.strArea && (
-              <span className="px-2.5 py-1 bg-secondary text-secondary-foreground text-xs rounded-md font-medium">
+              <span className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full font-semibold tracking-wide">
                 {meal.strArea}
               </span>
             )}

@@ -3,7 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Loader2, Flame, Search as SearchIcon, Activity } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import MealModel from "../context/MealModel";
 
 export default function Dashboard() {
@@ -23,7 +23,7 @@ export default function Dashboard() {
     try {
       const [statsRes, nutritionRes] = await Promise.all([
         authFetch("/meals/stats"),
-        authFetch("/nutrition/weekly")
+        authFetch("/nutrition/all")
       ]);
 
       if (statsRes.ok) {
@@ -88,6 +88,19 @@ export default function Dashboard() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
     <div className="max-w-6xl mx-auto w-full space-y-8">
       <div>
@@ -95,17 +108,23 @@ export default function Dashboard() {
         <p className="text-muted-foreground mt-1">Here is your cooking and nutrition overview.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
         
         {/* Nutrition Chart */}
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" /> 
-              Weekly Calorie Intake
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <motion.div variants={itemVariants} className="lg:col-span-3">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-primary" /> 
+                Overall Calorie Intake
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
             {nutrition.length > 0 ? (
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -129,14 +148,16 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                No nutrition data found for this week.
+                No nutrition data found.
               </div>
             )}
           </CardContent>
         </Card>
+        </motion.div>
 
         {/* Frequently Cooked */}
-        <Card className="lg:col-span-2">
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Flame className="w-5 h-5 text-orange-500" />
@@ -149,30 +170,33 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {stats.frequentlyCooked.map((item, idx) => (
-                  <div 
+                  <motion.div 
+                    whileHover={{ x: 5, backgroundColor: "rgba(255,100,50,0.05)" }}
                     key={item._id} 
-                    className="flex items-center gap-4 cursor-pointer hover:bg-muted/50 p-2 rounded-xl transition-colors"
+                    className="flex items-center gap-4 cursor-pointer p-3 rounded-xl transition-colors border border-transparent hover:border-primary/20 group"
                     onClick={() => handleMealClick(item._id)}
                   >
-                    <div className="text-xl font-bold text-muted-foreground w-6 text-center">#{idx + 1}</div>
+                    <div className="text-xl font-black text-muted-foreground/50 w-6 text-center group-hover:text-primary transition-colors">#{idx + 1}</div>
                     <img src={item.mealThumb} alt={item.mealName} className="w-12 h-12 rounded-lg object-cover" />
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate group-hover:text-primary transition-colors">{item.mealName}</div>
                       <div className="text-xs text-muted-foreground truncate">{item.category} • {item.area}</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold">{item.count}</div>
+                      <div className="font-bold text-lg">{item.count}</div>
                       <div className="text-xs text-muted-foreground">times</div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
+        </motion.div>
 
         {/* Frequently Searched */}
-        <Card>
+        <motion.div variants={itemVariants}>
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <SearchIcon className="w-5 h-5 text-blue-500" />
@@ -202,8 +226,9 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+        </motion.div>
 
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {selectedMeal && (

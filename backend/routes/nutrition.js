@@ -48,4 +48,16 @@ router.get("/recent/:days", auth, async (req, res) => {
     }
 });
 
+// Get all nutrition logs (for charts from day 1)
+router.get("/all", auth, async (req, res) => {
+    try {
+      const logs = await NutritionLog.find({ userId: req.userId })
+        .sort({ date: 1 }); // Sort ascending so Day 1 is first
+      res.json(logs);
+    } catch (err) {
+      console.error("Error fetching all nutrition logs:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+});
+
 export default router;

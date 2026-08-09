@@ -208,9 +208,10 @@ export default function MealModel({ meal, onClose, loading }) {
         />
         
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          exit={{ opacity: 0, scale: 0.95, y: 30 }}
+          transition={{ type: "spring", stiffness: 350, damping: 25 }}
           className="relative w-full max-w-4xl max-h-[90vh] bg-background rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
         >
           <button 

@@ -122,7 +122,12 @@ export default function Discover() {
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8 pb-12">
-      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between bg-card p-6 rounded-2xl border shadow-sm">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 24 }}
+        className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between bg-card p-6 rounded-2xl border shadow-sm"
+      >
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Discover Meals</h1>
           <p className="text-muted-foreground mt-1">Search by ingredients you have, or get inspired.</p>
@@ -143,7 +148,7 @@ export default function Discover() {
             <Dices className="w-5 h-5" />
           </Button>
         </form>
-      </div>
+      </motion.div>
 
       {error && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-destructive/10 text-destructive rounded-xl text-center font-medium">

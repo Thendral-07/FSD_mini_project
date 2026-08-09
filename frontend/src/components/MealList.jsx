@@ -11,10 +11,21 @@ export default function MealList({ meals, favoriteIds = [] }) {
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
       className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
     >
       {meals.map((meal) => (
