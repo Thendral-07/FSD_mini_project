@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
+import { MultiSelect } from "../components/ui/MultiSelect";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { Loader2, Save, Upload, Calculator } from "lucide-react";
 import { motion } from "framer-motion";
@@ -192,48 +193,44 @@ export default function Profile() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Dietary Preferences (Hold Ctrl/Cmd to select multiple)</label>
-                  <select 
-                    multiple
-                    className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm h-32"
-                    value={formData.dietaryPreferences}
-                    onChange={e => {
-                      const selected = Array.from(e.target.selectedOptions, option => option.value);
-                      setFormData({...formData, dietaryPreferences: selected});
-                    }}
-                  >
-                    <option value="Vegetarian">Vegetarian</option>
-                    <option value="Vegan">Vegan</option>
-                    <option value="Pescetarian">Pescetarian</option>
-                    <option value="Keto">Keto</option>
-                    <option value="Paleo">Paleo</option>
-                    <option value="Halal">Halal</option>
-                    <option value="Kosher">Kosher</option>
-                  </select>
-                </div>
+                <MultiSelect
+                  label="Dietary Preferences"
+                  placeholder="Select dietary preferences..."
+                  noneOptionValue="None"
+                  noneOptionLabel="No Dietary Preferences (None)"
+                  options={[
+                    "Vegetarian",
+                    "Vegan",
+                    "Pescetarian",
+                    "Keto",
+                    "Paleo",
+                    "Halal",
+                    "Kosher",
+                    "Gluten-Free",
+                    "Dairy-Free",
+                  ]}
+                  value={formData.dietaryPreferences || []}
+                  onChange={(selected) => setFormData({ ...formData, dietaryPreferences: selected })}
+                />
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Allergies (Hold Ctrl/Cmd to select multiple)</label>
-                  <select 
-                    multiple
-                    className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm h-32"
-                    value={formData.allergies}
-                    onChange={e => {
-                      const selected = Array.from(e.target.selectedOptions, option => option.value);
-                      setFormData({...formData, allergies: selected});
-                    }}
-                  >
-                    <option value="Dairy">Dairy</option>
-                    <option value="Eggs">Eggs</option>
-                    <option value="Tree Nuts">Tree Nuts</option>
-                    <option value="Peanuts">Peanuts</option>
-                    <option value="Shellfish">Shellfish</option>
-                    <option value="Wheat">Wheat</option>
-                    <option value="Soy">Soy</option>
-                    <option value="Fish">Fish</option>
-                  </select>
-                </div>
+                <MultiSelect
+                  label="Allergies"
+                  placeholder="Select allergies..."
+                  noneOptionValue="None"
+                  noneOptionLabel="No Allergies (None)"
+                  options={[
+                    "Dairy",
+                    "Eggs",
+                    "Tree Nuts",
+                    "Peanuts",
+                    "Shellfish",
+                    "Wheat",
+                    "Soy",
+                    "Fish",
+                  ]}
+                  value={formData.allergies || []}
+                  onChange={(selected) => setFormData({ ...formData, allergies: selected })}
+                />
               </div>
 
               <Button type="submit" disabled={saving} className="w-full">
