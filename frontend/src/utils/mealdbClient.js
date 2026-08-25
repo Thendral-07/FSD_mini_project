@@ -1,10 +1,12 @@
 /**
  * Centralized TheMealDB Client
  * Proxies all requests through backend /api/meals/... with client-side in-memory caching,
- * in-flight request de-duplication, and structured MealApiError throwing.
+ * in-flight request de-duplication, structured MealApiError throwing, and
+ * resilient client-side fallback if backend is sleeping or unreachable.
  */
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const THEMEALDB_FALLBACK = "https://www.themealdb.com/api/json/v1/1";
 
 export class MealApiError extends Error {
   constructor(message, code = "UPSTREAM_ERROR", retryAfterSeconds = null) {
@@ -77,17 +79,36 @@ export async function lookupMeal(mealId) {
   }
 
   const promise = (async () => {
+    // 1. Try Backend Proxy first
     try {
       const res = await fetch(`${API_BASE}/meals/lookup/${encodeURIComponent(key)}`);
       const data = await handleResponse(res);
       const meal = data?.meal || null;
       if (meal) {
         lookupCache.set(key, meal);
+        return meal;
       }
-      return meal;
     } catch (err) {
+      if (err instanceof MealApiError && err.code === "RATE_LIMITED") throw err;
+      // Backend unreachable or failed -> Fallback to direct client call
+      try {
+        const directRes = await fetch(`${THEMEALDB_FALLBACK}/lookup.php?i=${encodeURIComponent(key)}`);
+        if (directRes.status === 429) {
+          throw new MealApiError("Rate limit reached. Please try again in a moment.", "RATE_LIMITED", 60);
+        }
+        if (directRes.ok) {
+          const directData = await directRes.json();
+          const meal = directData?.meals?.[0] || null;
+          if (meal) {
+            lookupCache.set(key, meal);
+            return meal;
+          }
+        }
+      } catch (fallbackErr) {
+        if (fallbackErr instanceof MealApiError) throw fallbackErr;
+      }
       if (err instanceof MealApiError) throw err;
-      throw new MealApiError(err.message || "Network error.", "NETWORK");
+      throw new MealApiError(err.message || "Failed to load meal.", "NETWORK");
     } finally {
       inFlightLookups.delete(key);
     }
@@ -99,26 +120,49 @@ export async function lookupMeal(mealId) {
 
 /**
  * getRandomMeals(count)
- * Fetches concurrency-controlled random meals from backend
+ * Fetches concurrency-controlled random meals from backend with fallback
  */
 export async function getRandomMeals(count = 12) {
+  // 1. Try Backend Proxy
   try {
     const res = await fetch(`${API_BASE}/meals/random?count=${count}`);
     const data = await handleResponse(res);
     const meals = data?.meals || [];
-    meals.forEach((m) => {
+    if (meals.length > 0) {
+      meals.forEach((m) => {
+        if (m?.idMeal) lookupCache.set(String(m.idMeal), m);
+      });
+      return meals;
+    }
+  } catch (err) {
+    if (err instanceof MealApiError && err.code === "RATE_LIMITED") throw err;
+  }
+
+  // 2. Direct Fallback if backend is sleeping or on Vercel without active backend
+  try {
+    const directPromises = Array(count)
+      .fill(0)
+      .map(() =>
+        fetch(`${THEMEALDB_FALLBACK}/random.php`)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => d?.meals?.[0] || null)
+          .catch(() => null)
+      );
+    const results = await Promise.all(directPromises);
+    const valid = results.filter(Boolean);
+    const uniqueMeals = Array.from(new Map(valid.map((m) => [m.idMeal, m])).values());
+    uniqueMeals.forEach((m) => {
       if (m?.idMeal) lookupCache.set(String(m.idMeal), m);
     });
-    return meals;
+    return uniqueMeals;
   } catch (err) {
-    if (err instanceof MealApiError) throw err;
-    throw new MealApiError(err.message || "Network error.", "NETWORK");
+    throw new MealApiError("Failed to fetch random meals.", "NETWORK");
   }
 }
 
 /**
  * filterByIngredient(term)
- * Filters meals by ingredient
+ * Filters meals by ingredient with fallback
  */
 export async function filterByIngredient(term) {
   if (!term || !term.trim()) return [];
@@ -128,6 +172,7 @@ export async function filterByIngredient(term) {
     return filterCache.get(clean);
   }
 
+  // 1. Try Backend Proxy
   try {
     const res = await fetch(`${API_BASE}/meals/filter?i=${encodeURIComponent(clean)}`);
     const data = await handleResponse(res);
@@ -135,14 +180,31 @@ export async function filterByIngredient(term) {
     filterCache.set(clean, meals);
     return meals;
   } catch (err) {
-    if (err instanceof MealApiError) throw err;
-    throw new MealApiError(err.message || "Network error.", "NETWORK");
+    if (err instanceof MealApiError && err.code === "RATE_LIMITED") throw err;
   }
+
+  // 2. Direct Fallback
+  try {
+    const directRes = await fetch(`${THEMEALDB_FALLBACK}/filter.php?i=${encodeURIComponent(clean)}`);
+    if (directRes.status === 429) {
+      throw new MealApiError("Rate limit reached. Please try again in a moment.", "RATE_LIMITED", 60);
+    }
+    if (directRes.ok) {
+      const directData = await directRes.json();
+      const meals = directData?.meals || [];
+      filterCache.set(clean, meals);
+      return meals;
+    }
+  } catch (err) {
+    if (err instanceof MealApiError) throw err;
+    throw new MealApiError("Failed to filter meals.", "NETWORK");
+  }
+  return [];
 }
 
 /**
  * searchMealsByName(term)
- * Searches meals by name
+ * Searches meals by name with fallback
  */
 export async function searchMealsByName(term) {
   if (!term || !term.trim()) return [];
@@ -152,6 +214,7 @@ export async function searchMealsByName(term) {
     return searchCache.get(clean);
   }
 
+  // 1. Try Backend Proxy
   try {
     const res = await fetch(`${API_BASE}/meals/search?s=${encodeURIComponent(clean)}`);
     const data = await handleResponse(res);
@@ -162,7 +225,27 @@ export async function searchMealsByName(term) {
     searchCache.set(clean, meals);
     return meals;
   } catch (err) {
-    if (err instanceof MealApiError) throw err;
-    throw new MealApiError(err.message || "Network error.", "NETWORK");
+    if (err instanceof MealApiError && err.code === "RATE_LIMITED") throw err;
   }
+
+  // 2. Direct Fallback
+  try {
+    const directRes = await fetch(`${THEMEALDB_FALLBACK}/search.php?s=${encodeURIComponent(clean)}`);
+    if (directRes.status === 429) {
+      throw new MealApiError("Rate limit reached. Please try again in a moment.", "RATE_LIMITED", 60);
+    }
+    if (directRes.ok) {
+      const directData = await directRes.json();
+      const meals = directData?.meals || [];
+      meals.forEach((m) => {
+        if (m?.idMeal) lookupCache.set(String(m.idMeal), m);
+      });
+      searchCache.set(clean, meals);
+      return meals;
+    }
+  } catch (err) {
+    if (err instanceof MealApiError) throw err;
+    throw new MealApiError("Failed to search meals.", "NETWORK");
+  }
+  return [];
 }
