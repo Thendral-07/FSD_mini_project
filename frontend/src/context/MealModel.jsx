@@ -188,21 +188,31 @@ export default function MealModel({ meal, onClose, loading, error }) {
     setPlanLoading(true);
     setPlanSuccess(false);
     try {
+      const mealId = meal.idMeal || meal._id;
+      const mealName = meal.strMeal || meal.title;
+      const mealThumb = meal.strMealThumb || meal.image || "";
+
       // First fetch current plan
       const getRes = await authFetch(`/planner/${planDate}`);
       const data = await getRes.json();
-      const currentMeals = data.meals || { breakfast: [], lunch: [], dinner: [], snacks: [] };
+      const currentMeals = data?.meals || { breakfast: [], lunch: [], dinner: [], snacks: [] };
       
+      // Ensure target array exists
+      if (!Array.isArray(currentMeals[planType])) {
+        currentMeals[planType] = [];
+      }
+
       // Check if already in plan
-      if (currentMeals[planType].some(m => String(m.mealId) === String(meal.idMeal))) {
+      if (currentMeals[planType].some(m => String(m.mealId) === String(mealId))) {
         setPlanSuccess(true);
+        setTimeout(() => setPlanSuccess(false), 3000);
         return;
       }
 
       currentMeals[planType].push({
-        mealId: meal.idMeal,
-        mealName: meal.strMeal,
-        mealThumb: meal.strMealThumb || "",
+        mealId: String(mealId),
+        mealName: mealName,
+        mealThumb: mealThumb,
       });
 
       const putRes = await authFetch(`/planner/${planDate}`, {

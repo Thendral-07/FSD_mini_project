@@ -33,10 +33,11 @@ export default function Planner() {
       const res = await authFetch(`/planner/${date}`);
       if (res.ok) {
         const data = await res.json();
-        setPlan(data);
+        setPlan(data?.meals || { breakfast: [], lunch: [], dinner: [], snacks: [] });
       }
     } catch (err) {
       console.error("Error fetching meal plan:", err);
+      setPlan({ breakfast: [], lunch: [], dinner: [], snacks: [] });
     } finally {
       setLoading(false);
     }
@@ -48,16 +49,16 @@ export default function Planner() {
     setCurrentDate(nextDate);
   };
 
-  const removeMealFromPlan = async (mealType, mealId) => {
-    if (!plan || !plan.meals) return;
+  const removeMeal = async (mealType, mealId) => {
+    if (!plan) return;
     
     // Optimistic UI update
     const updatedMeals = {
-      ...plan.meals,
-      [mealType]: plan.meals[mealType].filter((m) => String(m.mealId) !== String(mealId)),
+      ...plan,
+      [mealType]: (plan[mealType] || []).filter((m) => String(m.mealId) !== String(mealId)),
     };
     
-    setPlan({ ...plan, meals: updatedMeals });
+    setPlan(updatedMeals);
 
     try {
       await authFetch(`/planner/${dateString}`, {
