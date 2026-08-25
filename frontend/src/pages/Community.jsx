@@ -140,7 +140,14 @@ export default function Community() {
                   </p>
                   <div className="flex justify-between items-center text-xs text-muted-foreground pt-4 border-t mt-auto">
                     <div>{recipe.ingredients?.length || 0} Ingredients</div>
-                    <div>{recipe.instructions?.length || 0} Steps</div>
+                    <div>
+                      {typeof recipe.instructions === "string"
+                        ? recipe.instructions.split(/\r\n|\n/).map(s => s.trim()).filter(Boolean).length || (recipe.instructions.trim() ? 1 : 0)
+                        : Array.isArray(recipe.instructions)
+                        ? recipe.instructions.length
+                        : 0}{" "}
+                      Steps
+                    </div>
                   </div>
                 </CardContent>
               </Card>
