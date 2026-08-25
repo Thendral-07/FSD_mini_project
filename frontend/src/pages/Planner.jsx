@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { lookupMeal, searchMealsByName, MealApiError } from "../utils/mealdbClient";
 import { Button } from "../components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, Search, X } from "lucide-react";
@@ -15,8 +16,10 @@ export default function Planner() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [mealDetailsLoading, setMealDetailsLoading] = useState(false);
+  const [mealError, setMealError] = useState(null);
   
   const dateString = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
@@ -24,38 +27,42 @@ export default function Planner() {
     fetchPlan(dateString);
   }, [dateString]);
 
-  const fetchPlan = async (dateStr) => {
-    setLoading(true);
+  const fetchPlan = async (date) => {
     try {
-      const res = await authFetch(`/planner/${dateStr}`);
-      const data = await res.json();
-      setPlan(data.meals || { breakfast: [], lunch: [], dinner: [], snacks: [] });
+      setLoading(true);
+      const res = await authFetch(`/planner/${date}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPlan(data);
+      }
     } catch (err) {
-      console.error(err);
-      setPlan({ breakfast: [], lunch: [], dinner: [], snacks: [] });
+      console.error("Error fetching meal plan:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const changeDate = (days) => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + days);
-    setCurrentDate(newDate);
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(currentDate.getDate() + days);
+    setCurrentDate(nextDate);
   };
 
-  const removeMeal = async (type, mealId) => {
+  const removeMealFromPlan = async (mealType, mealId) => {
+    if (!plan || !plan.meals) return;
+    
+    // Optimistic UI update
     const updatedMeals = {
-      ...plan,
-      [type]: plan[type].filter(m => m.mealId !== mealId)
+      ...plan.meals,
+      [mealType]: plan.meals[mealType].filter((m) => String(m.mealId) !== String(mealId)),
     };
     
-    setPlan(updatedMeals); // optimistic update
+    setPlan({ ...plan, meals: updatedMeals });
 
     try {
       await authFetch(`/planner/${dateString}`, {
         method: "PUT",
-        body: JSON.stringify({ meals: updatedMeals })
+        body: JSON.stringify({ meals: updatedMeals }),
       });
     } catch (err) {
       console.error(err);
@@ -65,25 +72,40 @@ export default function Planner() {
 
   const openMealDetails = async (mealId) => {
     setMealDetailsLoading(true);
+    setMealError(null);
     // Optimistically open modal with loading state
     setSelectedMeal({ idMeal: mealId, strMeal: "Loading...", strMealThumb: "" });
     try {
-      // Assuming it's from TheMealDB. If it's a creator recipe, we'd fetch from our backend.
-      // For now, try TheMealDB first
-      let res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`);
-      let data = await res.json();
-      if (data.meals && data.meals.length > 0) {
-        setSelectedMeal(data.meals[0]);
+      const meal = await lookupMeal(mealId);
+      if (meal) {
+        setSelectedMeal(meal);
       } else {
         // Fallback to our backend if not in TheMealDB (e.g., Creator recipe)
-        res = await authFetch(`/meals/${mealId}`);
+        const res = await authFetch(`/meals/${mealId}`);
         if (res.ok) {
-          data = await res.json();
+          const data = await res.json();
           setSelectedMeal(data);
         }
       }
     } catch (err) {
-      console.error("Error fetching meal details:", err);
+      if (err instanceof MealApiError && err.code === "RATE_LIMITED") {
+        setMealError(err.message);
+        setSelectedMeal((prev) => prev || { idMeal: mealId, strMeal: "Meal Details", strMealThumb: "" });
+      } else if (err instanceof MealApiError && err.code === "NOT_FOUND") {
+        try {
+          const res = await authFetch(`/meals/${mealId}`);
+          if (res.ok) {
+            const data = await res.json();
+            setSelectedMeal(data);
+          } else {
+            setMealError("Meal not found.");
+          }
+        } catch {
+          setMealError("Meal not found.");
+        }
+      } else {
+        console.error("Error fetching meal details:", err);
+      }
     } finally {
       setMealDetailsLoading(false);
     }
@@ -93,12 +115,17 @@ export default function Planner() {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     setSearchLoading(true);
+    setSearchError("");
     try {
-      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${searchQuery}`);
-      const data = await res.json();
-      setSearchResults(data.meals || []);
+      const meals = await searchMealsByName(searchQuery);
+      setSearchResults(meals || []);
     } catch (err) {
-      console.error(err);
+      if (err instanceof MealApiError && err.code === "RATE_LIMITED") {
+        setSearchError(err.message);
+      } else {
+        console.error(err);
+        setSearchError("Failed to search meals. Please try again.");
+      }
     } finally {
       setSearchLoading(false);
     }
@@ -240,9 +267,11 @@ export default function Planner() {
                     </div>
                   </div>
                 ))}
-                {searchResults.length === 0 && !searchLoading && searchQuery && (
+                {searchError ? (
+                  <div className="text-center text-amber-500 py-10 font-medium">{searchError}</div>
+                ) : searchResults.length === 0 && !searchLoading && searchQuery ? (
                   <div className="text-center text-muted-foreground py-10">No meals found.</div>
-                )}
+                ) : null}
               </div>
             </motion.div>
           </div>
@@ -254,8 +283,10 @@ export default function Planner() {
           <MealModel
             meal={selectedMeal}
             loading={mealDetailsLoading}
+            error={mealError}
             onClose={() => {
               setSelectedMeal(null);
+              setMealError(null);
               fetchPlan(dateString); // Refresh plan when modal closes just in case they added
             }}
           />

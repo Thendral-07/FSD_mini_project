@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import MealModel from "../context/MealModel";
 import { AuthContext } from "../context/AuthContext";
+import { lookupMeal, MealApiError } from "../utils/mealdbClient";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -9,6 +10,7 @@ export default function MealCard({ meal, favoriteIds = [] }) {
   const [open, setOpen] = useState(false);
   const [fullMeal, setFullMeal] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [isFav, setIsFav] = useState(false);
 
   useEffect(() => {
@@ -20,15 +22,13 @@ export default function MealCard({ meal, favoriteIds = [] }) {
   const fetchFullMealDetails = async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`
-      );
-      const data = await res.json();
-      if (data.meals) {
-        setFullMeal(data.meals[0]);
+      setError(null);
+      const data = await lookupMeal(meal.idMeal);
+      setFullMeal(data || meal);
+    } catch (err) {
+      if (err instanceof MealApiError && err.code === "RATE_LIMITED") {
+        setError(err.message);
       }
-    } catch (error) {
-      console.error("Error fetching meal details:", error);
       setFullMeal(meal);
     } finally {
       setLoading(false);
@@ -121,10 +121,16 @@ export default function MealCard({ meal, favoriteIds = [] }) {
       </motion.div>
 
       {open && (
-        <MealModel meal={fullMeal || meal} onClose={() => {
-          setOpen(false);
-          setFullMeal(null);
-        }} loading={loading} />
+        <MealModel
+          meal={fullMeal || meal}
+          loading={loading}
+          error={error}
+          onClose={() => {
+            setOpen(false);
+            setFullMeal(null);
+            setError(null);
+          }}
+        />
       )}
     </>
   );

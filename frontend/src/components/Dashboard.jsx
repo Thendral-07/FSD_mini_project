@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { lookupMeal, MealApiError } from "../utils/mealdbClient";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Loader2, Flame, Search as SearchIcon, Activity, Utensils } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line } from "recharts";
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [mealLoading, setMealLoading] = useState(false);
+  const [mealError, setMealError] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -75,11 +77,11 @@ export default function Dashboard() {
   const handleMealClick = async (mealId) => {
     setMealLoading(true);
     setSelectedMeal(null);
+    setMealError(null);
     try {
-      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`);
-      const data = await res.json();
-      if (data.meals && data.meals[0]) {
-        setSelectedMeal(data.meals[0]);
+      const meal = await lookupMeal(mealId);
+      if (meal) {
+        setSelectedMeal(meal);
       } else {
         // Fallback for creator recipes if we wanted to
         const crRes = await authFetch(`/recipes/${mealId}`);
@@ -89,6 +91,9 @@ export default function Dashboard() {
         }
       }
     } catch (err) {
+      if (err instanceof MealApiError && err.code === "RATE_LIMITED") {
+        setMealError(err.message);
+      }
       console.error("Failed to load meal details", err);
     } finally {
       setMealLoading(false);
@@ -314,8 +319,10 @@ export default function Dashboard() {
         {selectedMeal && (
           <MealModel
             meal={selectedMeal}
+            error={mealError}
             onClose={() => {
               setSelectedMeal(null);
+              setMealError(null);
               fetchDashboardData();
             }}
             loading={mealLoading}

@@ -2,13 +2,180 @@
 
 import { Router } from "express";
 import mongoose from "mongoose";
+import axios from "axios";
 import auth from "../middleware/auth.js";
 import CookedMeal from "../models/CookedMeal.js";
 import Favorite from "../models/Favorite.js";
 import SearchHistory from "../models/SearchHistory.js";
 import { cacheMiddleware, clearCache } from "../middleware/cache.js";
+import { mealDbCache } from "../config/cache.js";
 
 const router = Router();
+
+const THEMEALDB_BASE = "https://www.themealdb.com/api/json/v1/1";
+const mealClient = axios.create({
+  baseURL: THEMEALDB_BASE,
+  timeout: 8000,
+});
+
+/**
+ * Concurrency limiter helper: runs an array of task functions with max `limit` in-flight requests.
+ */
+async function runLimited(tasks, limit = 3) {
+  const results = [];
+  const executing = new Set();
+  for (const task of tasks) {
+    const p = Promise.resolve().then(() => task());
+    results.push(p);
+    executing.add(p);
+    const clean = () => executing.delete(p);
+    p.then(clean, clean);
+    if (executing.size >= limit) {
+      await Promise.race(executing);
+    }
+  }
+  return Promise.all(results);
+}
+
+function handleMealError(err, res, context = "operation") {
+  console.error(`[TheMealDB Proxy Error - ${context}]:`, err?.message || err);
+  if (err?.response?.status === 429) {
+    return res.status(429).json({
+      error: "RATE_LIMITED",
+      message: "TheMealDB rate limit reached. Please try again in a moment.",
+      retryAfterSeconds: 60,
+    });
+  }
+  if (err?.response?.status === 404) {
+    return res.status(404).json({
+      error: "NOT_FOUND",
+      message: "Meal not found.",
+    });
+  }
+  return res.status(502).json({
+    error: "UPSTREAM_ERROR",
+    message: "Failed to communicate with meal provider.",
+  });
+}
+
+// ─── THEMEALDB PROXY ROUTES (PUBLIC & CACHED) ─────────────────
+
+// GET /api/meals/lookup/:id — cached 1 hour (3600s)
+router.get("/lookup/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ error: "BAD_REQUEST", message: "Meal ID is required." });
+  }
+
+  const cacheKey = `meal_lookup_${id}`;
+  const cached = mealDbCache.get(cacheKey);
+  if (cached) {
+    return res.json({ meal: cached, cached: true });
+  }
+
+  try {
+    const response = await mealClient.get(`/lookup.php?i=${id}`);
+    const meal = response.data?.meals?.[0] || null;
+    if (meal) {
+      mealDbCache.set(cacheKey, meal, 3600); // 1 hr cache
+      return res.json({ meal, cached: false });
+    }
+    return res.status(404).json({ error: "NOT_FOUND", message: "Meal not found." });
+  } catch (err) {
+    return handleMealError(err, res, `lookup/${id}`);
+  }
+});
+
+// GET /api/meals/random?count=N — concurrency-limited to 3 in-flight
+router.get("/random", async (req, res) => {
+  const count = Math.min(parseInt(req.query.count, 10) || 12, 24);
+  const cacheKey = `random_meals_pool_${count}`;
+  const cached = mealDbCache.get(cacheKey);
+
+  if (cached && cached.length >= count) {
+    return res.json({ meals: cached, cached: true });
+  }
+
+  try {
+    const tasks = Array(count).fill(0).map(() => async () => {
+      try {
+        const resp = await mealClient.get("/random.php");
+        return resp.data?.meals?.[0] || null;
+      } catch (e) {
+        if (e?.response?.status === 429) throw e;
+        return null;
+      }
+    });
+
+    const results = await runLimited(tasks, 3);
+    const validMeals = results.filter(Boolean);
+    const uniqueMeals = Array.from(new Map(validMeals.map((m) => [m.idMeal, m])).values());
+
+    // Populate lookup cache for individual meals
+    uniqueMeals.forEach((meal) => {
+      mealDbCache.set(`meal_lookup_${meal.idMeal}`, meal, 3600);
+    });
+
+    if (uniqueMeals.length > 0) {
+      mealDbCache.set(cacheKey, uniqueMeals, 300); // 5 min pool cache
+    }
+
+    return res.json({ meals: uniqueMeals, cached: false });
+  } catch (err) {
+    return handleMealError(err, res, "random");
+  }
+});
+
+// GET /api/meals/filter?i=term — cached 1 hour (3600s)
+router.get("/filter", async (req, res) => {
+  const { i, c, a } = req.query;
+  const param = i ? `i=${i}` : c ? `c=${c}` : a ? `a=${a}` : null;
+  if (!param) {
+    return res.status(400).json({ error: "BAD_REQUEST", message: "Filter query (i, c, or a) is required." });
+  }
+
+  const cacheKey = `meal_filter_${param.toLowerCase()}`;
+  const cached = mealDbCache.get(cacheKey);
+  if (cached) {
+    return res.json({ meals: cached, cached: true });
+  }
+
+  try {
+    const response = await mealClient.get(`/filter.php?${param}`);
+    const meals = response.data?.meals || [];
+    mealDbCache.set(cacheKey, meals, 3600); // 1 hr cache
+    return res.json({ meals, cached: false });
+  } catch (err) {
+    return handleMealError(err, res, `filter?${param}`);
+  }
+});
+
+// GET /api/meals/search?s=term — cached 15 min (900s)
+router.get("/search", async (req, res) => {
+  const { s } = req.query;
+  const query = (s || "").trim().toLowerCase();
+  if (!query) {
+    return res.json({ meals: [] });
+  }
+
+  const cacheKey = `meal_search_${query}`;
+  const cached = mealDbCache.get(cacheKey);
+  if (cached) {
+    return res.json({ meals: cached, cached: true });
+  }
+
+  try {
+    const response = await mealClient.get(`/search.php?s=${encodeURIComponent(query)}`);
+    const meals = response.data?.meals || [];
+    meals.forEach((m) => {
+      if (m?.idMeal) mealDbCache.set(`meal_lookup_${m.idMeal}`, m, 3600);
+    });
+    mealDbCache.set(cacheKey, meals, 900); // 15 min cache
+    return res.json({ meals, cached: false });
+  } catch (err) {
+    return handleMealError(err, res, `search?s=${query}`);
+  }
+});
 
 // ─── COOKED MEALS ────────────────────────────────────────────
 

@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { lookupMeal, MealApiError } from "../utils/mealdbClient";
 import MealModel from "../context/MealModel";
 import "../styled/history.css";
 
@@ -10,6 +11,7 @@ export default function History() {
   const [error, setError] = useState("");
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [mealLoading, setMealLoading] = useState(false);
+  const [mealError, setMealError] = useState(null);
 
   useEffect(() => {
     fetchHistory();
@@ -33,15 +35,24 @@ export default function History() {
 
   const openMeal = async (item) => {
     setMealLoading(true);
+    setMealError(null);
     try {
-      const res = await fetch(
-        `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${item.mealId}`
-      );
-      const data = await res.json();
-      if (data.meals) {
-        setSelectedMeal(data.meals[0]);
+      const meal = await lookupMeal(item.mealId);
+      if (meal) {
+        setSelectedMeal(meal);
+      } else {
+        setSelectedMeal({
+          idMeal: item.mealId,
+          strMeal: item.mealName,
+          strMealThumb: item.mealThumb,
+          strCategory: item.category,
+          strArea: item.area,
+        });
       }
-    } catch {
+    } catch (err) {
+      if (err instanceof MealApiError && err.code === "RATE_LIMITED") {
+        setMealError(err.message);
+      }
       // Fallback to stored data
       setSelectedMeal({
         idMeal: item.mealId,
@@ -119,7 +130,11 @@ export default function History() {
       {selectedMeal && (
         <MealModel
           meal={selectedMeal}
-          onClose={() => setSelectedMeal(null)}
+          error={mealError}
+          onClose={() => {
+            setSelectedMeal(null);
+            setMealError(null);
+          }}
           loading={mealLoading}
         />
       )}

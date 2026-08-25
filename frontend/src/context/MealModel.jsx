@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, CheckCircle, X, PlayCircle, Loader2, Utensils, Clock, ListPlus, Calculator, Flame, Minus, Plus as PlusIcon } from "lucide-react";
+import { Heart, CheckCircle, X, PlayCircle, Loader2, Utensils, Clock, ListPlus, Calculator, Flame, Minus, Plus as PlusIcon, AlertTriangle } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { calculateMealCalories, calculateMealMacros } from "../utils/calories";
 
-export default function MealModel({ meal, onClose, loading }) {
+export default function MealModel({ meal, onClose, loading, error }) {
   const { isAuthenticated, authFetch, user } = useContext(AuthContext);
   const [cooked, setCooked] = useState(false);
   const [cookLoading, setCookLoading] = useState(false);
@@ -290,6 +290,13 @@ export default function MealModel({ meal, onClose, loading }) {
           {/* Right Side: Content */}
           <div className="w-full md:w-3/5 p-6 md:p-8 overflow-y-auto flex flex-col">
             
+            {error && (
+              <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center gap-2.5 text-amber-600 dark:text-amber-400 text-sm font-medium">
+                <AlertTriangle className="w-5 h-5 shrink-0 text-amber-500" />
+                <span>{error}</span>
+              </div>
+            )}
+
             {loading ? (
               <div className="flex-1 flex items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />

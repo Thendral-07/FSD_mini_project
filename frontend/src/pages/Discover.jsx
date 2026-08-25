@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import MealList from "../components/MealList";
 import { AuthContext } from "../context/AuthContext";
+import { getRandomMeals, filterByIngredient, MealApiError } from "../utils/mealdbClient";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { Search, Loader2, Dices } from "lucide-react";
@@ -35,27 +36,24 @@ export default function Discover() {
     setSearchParams({}); // clear url param
 
     try {
-      const promises = Array(12).fill(0).map(() =>
-        fetch("https://www.themealdb.com/api/json/v1/1/random.php").then((res) => res.json())
-      );
-      const results = await Promise.all(promises);
-      const randomMeals = results.map((data) => data.meals[0]);
-      setMeals(randomMeals);
+      const randomMeals = await getRandomMeals(12);
+      if (randomMeals && randomMeals.length > 0) {
+        setMeals(randomMeals);
+      } else {
+        setError("Failed to fetch meals. Try again.");
+      }
     } catch (err) {
-      setError("Failed to fetch meals. Try again.");
+      if (err instanceof MealApiError && err.code === "RATE_LIMITED") {
+        setError(err.message || "Rate limit reached. Please try again in a moment.");
+      } else {
+        setError("Failed to fetch meals. Try again.");
+      }
     }
     setLoading(false);
   };
 
   const parseIngredients = (input) =>
     input.split(/[\s,]+/).map((item) => item.trim()).filter(Boolean);
-
-  const fetchMealsByIngredient = async (term) => {
-    const res = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?i=${term}`);
-    if (!res.ok) throw new Error("API Failed");
-    const data = await res.json();
-    return data.meals || [];
-  };
 
   const searchByIngredient = async (ingredientName) => {
     const terms = parseIngredients(ingredientName);
@@ -76,7 +74,7 @@ export default function Discover() {
     }
 
     try {
-      const results = await Promise.all(terms.map((term) => fetchMealsByIngredient(term)));
+      const results = await Promise.all(terms.map((term) => filterByIngredient(term)));
       
       if (results.some((mealsForTerm) => mealsForTerm.length === 0)) {
         setError(`No meals found with ingredient(s): "${ingredientName}"`);
@@ -97,7 +95,11 @@ export default function Discover() {
         setMeals(intersection.slice(0, 12));
       }
     } catch (err) {
-      setError("Failed to search by ingredient. Try again.");
+      if (err instanceof MealApiError && err.code === "RATE_LIMITED") {
+        setError(err.message || "Rate limit reached. Please try again in a moment.");
+      } else {
+        setError("Failed to search by ingredient. Try again.");
+      }
       setMeals([]);
     }
     setLoading(false);
