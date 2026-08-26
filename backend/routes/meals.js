@@ -116,6 +116,7 @@ router.get("/lookup/:id", async (req, res) => {
     }, 3600);
 
     if (meal) {
+      res.set("Cache-Control", "public, max-age=3600");
       return res.json({ meal, cached });
     }
     return res.status(404).json({ error: "NOT_FOUND", message: "Meal not found." });
@@ -158,6 +159,7 @@ router.get("/random", async (req, res) => {
       mealDbCache.set(cacheKey, uniqueMeals, 300); // 5 min pool cache
     }
 
+    res.set("Cache-Control", "no-cache");
     return res.json({ meals: uniqueMeals, cached: false });
   } catch (err) {
     return handleMealError(err, res, "random");
@@ -180,6 +182,7 @@ router.get("/filter", async (req, res) => {
       return response.data?.meals || [];
     }, 3600);
 
+    res.set("Cache-Control", "public, max-age=3600");
     return res.json({ meals: meals || [], cached });
   } catch (err) {
     return handleMealError(err, res, `filter?${param}`);
@@ -207,6 +210,7 @@ router.get("/search", async (req, res) => {
       return results;
     }, 900);
 
+    res.set("Cache-Control", "public, max-age=900");
     return res.json({ meals: meals || [], cached });
   } catch (err) {
     return handleMealError(err, res, `search?s=${query}`);

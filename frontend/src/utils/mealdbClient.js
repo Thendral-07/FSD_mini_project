@@ -17,11 +17,54 @@ export class MealApiError extends Error {
   }
 }
 
+class PersistentCache {
+  constructor(name, ttlHours = 1) {
+    this.name = `mealdb_cache_${name}`;
+    this.ttl = ttlHours * 60 * 60 * 1000;
+    this.memory = new Map();
+    this.load();
+  }
+  load() {
+    try {
+      const stored = localStorage.getItem(this.name);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const now = Date.now();
+        for (const [key, item] of Object.entries(parsed)) {
+          if (now < item.expires) {
+            this.memory.set(key, item.data);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn(`Failed to load cache ${this.name}`, e);
+    }
+  }
+  save() {
+    try {
+      const obj = {};
+      const now = Date.now();
+      for (const [key, data] of this.memory.entries()) {
+        obj[key] = { data, expires: now + this.ttl };
+      }
+      localStorage.setItem(this.name, JSON.stringify(obj));
+    } catch (e) {
+      console.warn(`Failed to save cache ${this.name}`, e);
+    }
+  }
+  has(key) { return this.memory.has(key); }
+  get(key) { return this.memory.get(key); }
+  set(key, data) {
+    this.memory.set(key, data);
+    this.save();
+  }
+}
+
 // In-memory caches and in-flight promises
-const lookupCache = new Map();
+const lookupCache = new PersistentCache("lookup", 1);
 const inFlightLookups = new Map();
-const filterCache = new Map();
-const searchCache = new Map();
+const filterCache = new PersistentCache("filter", 1);
+const searchCache = new PersistentCache("search", 1);
 
 async function handleResponse(res) {
   if (res.status === 429) {

@@ -116,7 +116,7 @@ export default function Favorites() {
               onClick={() => openMeal(item)}
             >
               <div className="fav-card-img">
-                <img src={item.mealThumb} alt={item.mealName} />
+                <img src={`${item.mealThumb}/preview`} alt={item.mealName} loading="lazy" />
                 <button
                   className="fav-remove"
                   onClick={(e) => removeFavorite(e, item.mealId, item.mealName)}
