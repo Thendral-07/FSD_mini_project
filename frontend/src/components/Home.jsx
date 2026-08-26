@@ -36,15 +36,6 @@ export default function Home() {
         delay: 0.3,
       });
 
-      gsap.from(".hero-badge", {
-        scale: 0,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "back.out(1.7)",
-        delay: 1,
-      });
-
       // Features Animation
       gsap.from(".feature-card", {
         scrollTrigger: {
@@ -157,7 +148,13 @@ export default function Home() {
             />
           </div>
           {/* Floating badge 1 (Top Left) */}
-          <div className="hero-badge absolute top-[5%] left-[0%] md:top-[10%] md:left-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 hover:scale-105 transition-transform cursor-default z-20">
+          <motion.div 
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8, type: "spring", bounce: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            className="hero-badge absolute top-[5%] left-[0%] md:top-[10%] md:left-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 cursor-default z-20"
+          >
             <div className="w-10 h-10 bg-green-500/10 text-green-500 rounded-xl flex items-center justify-center">
               <HeartPulse className="w-5 h-5" />
             </div>
@@ -165,10 +162,16 @@ export default function Home() {
               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Nutrition</p>
               <p className="text-sm font-bold leading-tight">Tracked Daily</p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Floating badge 2 (Top Right) */}
-          <div className="hero-badge absolute top-[5%] right-[0%] md:top-[10%] md:right-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 hover:scale-105 transition-transform cursor-default z-20">
+          <motion.div 
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.0, type: "spring", bounce: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            className="hero-badge absolute top-[5%] right-[0%] md:top-[10%] md:right-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 cursor-default z-20"
+          >
             <div className="w-10 h-10 bg-orange-500/10 text-orange-500 rounded-xl flex items-center justify-center">
               <ListPlus className="w-5 h-5" />
             </div>
@@ -176,10 +179,16 @@ export default function Home() {
               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Planning</p>
               <p className="text-sm font-bold leading-tight">Automated Lists</p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Floating badge 3 (Bottom Left) */}
-          <div className="hero-badge absolute bottom-[5%] left-[0%] md:bottom-[10%] md:left-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 hover:scale-105 transition-transform cursor-default z-20">
+          <motion.div 
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.2, type: "spring", bounce: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            className="hero-badge absolute bottom-[5%] left-[0%] md:bottom-[10%] md:left-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 cursor-default z-20"
+          >
             <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center">
               <Search className="w-5 h-5" />
             </div>
@@ -187,10 +196,16 @@ export default function Home() {
               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Discovery</p>
               <p className="text-sm font-bold leading-tight">Smart Search</p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Floating badge 4 (Bottom Right) */}
-          <div className="hero-badge absolute bottom-[5%] right-[0%] md:bottom-[10%] md:right-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 hover:scale-105 transition-transform cursor-default z-20">
+          <motion.div 
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.4, type: "spring", bounce: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            className="hero-badge absolute bottom-[5%] right-[0%] md:bottom-[10%] md:right-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 cursor-default z-20"
+          >
             <div className="w-10 h-10 bg-purple-500/10 text-purple-500 rounded-xl flex items-center justify-center">
               <ChefHat className="w-5 h-5" />
             </div>
@@ -198,7 +213,7 @@ export default function Home() {
               <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Community</p>
               <p className="text-sm font-bold leading-tight">Creator Recipes</p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
