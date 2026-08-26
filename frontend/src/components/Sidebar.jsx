@@ -2,12 +2,12 @@ import React, { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
-import { Home, Compass, Heart, History, User, Calendar, Activity, ShoppingCart, LogOut, FileText, Sparkles, Users, Sun, Moon } from "lucide-react";
+import { Home, Compass, Heart, History, User, Calendar, Activity, ShoppingCart, LogOut, FileText, Sparkles, Users, Sun, Moon, X } from "lucide-react";
 import { cn } from "../utils/utils";
 import { motion } from "framer-motion";
 import "../styled/navbar.css";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, setIsOpen }) => {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useContext(ThemeContext);
   const location = useLocation();
@@ -25,11 +25,27 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden md:flex flex-col w-64 h-screen bg-card border-r fixed left-0 top-0 z-40 p-4">
-      <div className="flex items-center gap-2 mb-8 px-2 mt-4">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl">D</div>
-        <span className="text-xl font-bold tracking-tight">DishFlash</span>
-      </div>
+    <>
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" 
+          onClick={() => setIsOpen?.(false)}
+        />
+      )}
+      <aside className={cn(
+        "flex flex-col w-64 h-screen bg-card border-r fixed left-0 top-0 z-50 p-4 transition-transform duration-300",
+        isOpen ? "translate-x-0" : "-translate-x-full",
+        "md:translate-x-0"
+      )}>
+        <div className="flex items-center justify-between mb-8 px-2 mt-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl">D</div>
+            <span className="text-xl font-bold tracking-tight">DishFlash</span>
+          </div>
+          <button className="md:hidden p-1 rounded-md hover:bg-muted" onClick={() => setIsOpen?.(false)}>
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
         {navItems.map((item) => {
@@ -43,6 +59,7 @@ const Sidebar = () => {
               key={item.name}
               to={item.path}
               className="block relative"
+              onClick={() => setIsOpen?.(false)}
             >
               <div className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors z-10 relative",
@@ -94,7 +111,8 @@ const Sidebar = () => {
           </Link>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 };
 
