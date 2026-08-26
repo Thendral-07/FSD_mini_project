@@ -262,7 +262,7 @@ export default function Dashboard() {
             {!stats?.frequentlyCooked?.length ? (
               <div className="text-muted-foreground text-center py-8">No data yet. Start cooking to see your top meals!</div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
                 {stats.frequentlyCooked.map((item, idx) => (
                   <motion.div 
                     whileHover={{ x: 5, backgroundColor: "rgba(255,100,50,0.05)" }}
@@ -301,7 +301,7 @@ export default function Dashboard() {
             {!stats?.frequentlySearched?.length ? (
               <div className="text-muted-foreground text-center py-8">No searches yet.</div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
                 {stats.frequentlySearched.map((item, idx) => (
                   <div key={item.ingredient} className="space-y-1">
                     <div className="flex justify-between text-sm">
