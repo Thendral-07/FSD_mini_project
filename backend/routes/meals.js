@@ -128,15 +128,18 @@ router.get("/lookup/:id", async (req, res) => {
 // GET /api/meals/random?count=N — concurrency-limited to 3 in-flight
 router.get("/random", async (req, res) => {
   const count = Math.min(parseInt(req.query.count, 10) || 12, 24);
-  const cacheKey = `random_meals_pool_${count}`;
+  const poolSize = 24; // Always fetch 24 to create a diverse pool
+  const cacheKey = `random_meals_pool_${poolSize}`;
   const cached = mealDbCache.get(cacheKey);
 
   if (cached && cached.length >= count) {
-    return res.json({ meals: cached, cached: true });
+    // Shuffle the cached pool and return exactly 'count' meals
+    const shuffled = [...cached].sort(() => Math.random() - 0.5);
+    return res.json({ meals: shuffled.slice(0, count), cached: true });
   }
 
   try {
-    const tasks = Array(count).fill(0).map(() => async () => {
+    const tasks = Array(poolSize).fill(0).map(() => async () => {
       try {
         const resp = await mealClient.get("/random.php");
         return resp.data?.meals?.[0] || null;
@@ -160,7 +163,8 @@ router.get("/random", async (req, res) => {
     }
 
     res.set("Cache-Control", "no-cache");
-    return res.json({ meals: uniqueMeals, cached: false });
+    const shuffled = [...uniqueMeals].sort(() => Math.random() - 0.5);
+    return res.json({ meals: shuffled.slice(0, count), cached: false });
   } catch (err) {
     return handleMealError(err, res, "random");
   }
