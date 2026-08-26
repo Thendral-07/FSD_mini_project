@@ -185,8 +185,8 @@ export async function getRandomMeals(count = 12) {
   try {
     const directPromises = Array(count)
       .fill(0)
-      .map(() =>
-        fetch(`${THEMEALDB_FALLBACK}/random.php`)
+      .map((_, i) =>
+        fetch(`${THEMEALDB_FALLBACK}/random.php?t=${Date.now()}_${i}_${Math.random()}`)
           .then((r) => (r.ok ? r.json() : null))
           .then((d) => d?.meals?.[0] || null)
           .catch(() => null)
