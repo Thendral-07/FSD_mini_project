@@ -232,29 +232,49 @@ export default function MealModel({ meal, onClose, loading, error }) {
     }
   };
 
-  const scaleMeasure = (measure, servings) => {
-    if (!measure || servings === 1) return measure;
+  const scaleText = (text, servings) => {
+    if (!text) return text;
     
-    // Handle fractions like "1/2", "3/4", "1 1/2" at the start
-    const match = measure.trim().match(/^(\d+)?\s*(?:(\d+)\/(\d+))?(.*)$/);
-    if (match && (match[1] || match[2])) {
-      const whole = parseInt(match[1] || "0", 10);
-      const num = parseInt(match[2] || "0", 10);
-      const den = parseInt(match[3] || "1", 10);
-      
-      if (whole > 0 || num > 0) {
-        let value = whole + (num / den);
-        value = value * activeServings;
-        value = Math.round(value * 100) / 100; // max 2 decimal places
-        return `${value}${match[4]}`.trim();
+    let scaled = text;
+    const active = Number(servings) || 1;
+    
+    if (active !== 1) {
+      // Handle fractions like "1/2", "3/4", "1 1/2" at the start
+      const match = text.trim().match(/^(\d+)?\s*(?:(\d+)\/(\d+))(.*)$/);
+      if (match && (match[1] || match[2])) {
+        const whole = parseInt(match[1] || "0", 10);
+        const num = parseInt(match[2] || "0", 10);
+        const den = parseInt(match[3] || "1", 10);
+        
+        if (whole > 0 || num > 0) {
+          let value = whole + (num / den);
+          value = value * active;
+          value = Math.round(value * 100) / 100; // max 2 decimal places
+          scaled = `${value}${match[4] || ""}`.trim();
+        }
+      } else {
+        // Fallback for simple decimals/integers at the start
+        scaled = text.replace(/^([\d.]+)/, (m) => {
+          const num = parseFloat(m);
+          return isNaN(num) ? m : Math.round((num * active) * 100) / 100;
+        });
       }
     }
-    
-    // Fallback for simple decimals or if regex fails
-    return measure.replace(/^([\d.]+)/, (m) => {
-      const num = parseFloat(m);
-      return isNaN(num) ? m : Math.round((num * activeServings) * 100) / 100;
+
+    // Unit conversions (1000g -> 1kg, 1000ml -> 1l)
+    scaled = scaled.replace(/^([\d.]+)\s*(g|ml|kg|l|liter|liters|litre|litres)\b/i, (m, valStr, unit) => {
+      const val = parseFloat(valStr);
+      const u = unit.toLowerCase();
+      if (u === 'g' && val >= 1000) {
+        return `${Math.round((val / 1000) * 100) / 100}kg`;
+      }
+      if (u === 'ml' && val >= 1000) {
+        return `${Math.round((val / 1000) * 100) / 100}l`;
+      }
+      return m;
     });
+
+    return scaled;
   };
 
   return (
@@ -468,8 +488,8 @@ export default function MealModel({ meal, onClose, loading, error }) {
                       <ul className="space-y-3">
                         {ingredients.map((item, idx) => (
                           <li key={idx} className="flex justify-between items-center text-sm">
-                            <span className="font-medium text-foreground">{item.ingredient}</span>
-                            <span className="text-muted-foreground">{scaleMeasure(item.measure, servings)}</span>
+                            <span className="font-medium text-foreground">{scaleText(item.ingredient, servings)}</span>
+                            <span className="text-muted-foreground">{scaleText(item.measure, servings)}</span>
                           </li>
                         ))}
                       </ul>
