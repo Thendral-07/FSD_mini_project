@@ -83,7 +83,7 @@ export default function Favorites() {
   if (loading) {
     return (
       <div className="favorites-page">
-        <h1>❤️ My Favorites</h1>
+        <h1>My Favorites</h1>
         <div className="favorites-grid">
           {Array(4).fill(0).map((_, i) => (
             <div key={i} className="skeleton-card"></div>
@@ -95,7 +95,7 @@ export default function Favorites() {
 
   return (
     <div className="favorites-page">
-      <h1>❤️ My Favorites</h1>
+      <h1>My Favorites</h1>
       <p className="favorites-subtitle">
         Your saved meals — quick access to what you love
       </p>
@@ -104,7 +104,6 @@ export default function Favorites() {
 
       {favorites.length === 0 ? (
         <div className="favorites-empty">
-          <span className="empty-icon">💔</span>
           <h3>No favorites yet</h3>
           <p>Tap the heart on any meal to save it here.</p>
         </div>
