@@ -128,19 +128,9 @@ router.get("/lookup/:id", async (req, res) => {
 // GET /api/meals/random?count=N — concurrency-limited to 3 in-flight
 router.get("/random", async (req, res) => {
   const count = Math.min(parseInt(req.query.count, 10) || 12, 24);
-  const poolSize = 24; // Always fetch 24 to create a diverse pool
-  const cacheKey = `random_meals_pool_${poolSize}`;
-  const cached = mealDbCache.get(cacheKey);
-
-  if (cached && cached.length > 0) {
-    // Shuffle the cached pool and return up to 'count' meals
-    const shuffled = [...cached].sort(() => Math.random() - 0.5);
-    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
-    return res.json({ meals: shuffled.slice(0, count), cached: true });
-  }
 
   try {
-    const tasks = Array(poolSize).fill(0).map((_, i) => async () => {
+    const tasks = Array(count).fill(0).map((_, i) => async () => {
       try {
         // Append a random query string so Cloudflare/TheMealDB doesn't cache concurrent requests
         const resp = await mealClient.get(`/random.php?t=${Date.now()}_${i}_${Math.random()}`);
@@ -160,11 +150,7 @@ router.get("/random", async (req, res) => {
       mealDbCache.set(`meal_lookup_${meal.idMeal}`, meal, 3600);
     });
 
-    if (uniqueMeals.length > 0) {
-      mealDbCache.set(cacheKey, uniqueMeals, 300); // 5 min pool cache
-    }
-
-    res.set("Cache-Control", "no-cache");
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     const shuffled = [...uniqueMeals].sort(() => Math.random() - 0.5);
     return res.json({ meals: shuffled.slice(0, count), cached: false });
   } catch (err) {
