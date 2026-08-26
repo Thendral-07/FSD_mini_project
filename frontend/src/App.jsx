@@ -20,9 +20,12 @@ import Dashboard from "./components/Dashboard";
 import CustomCursor from "./components/CustomCursor";
 import AnimatedBackground from "./components/AnimatedBackground";
 
+import { Analytics } from "@vercel/analytics/react";
+
 export default function App() {
   return (
     <ThemeProvider>
+      <Analytics />
       <AuthProvider>
         <ImageProvider>
           <BrowserRouter>
