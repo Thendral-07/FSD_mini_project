@@ -123,57 +123,12 @@ router.get("/lookup/:id", async (req, res) => {
   } catch (err) {
     return handleMealError(err, res, `lookup/${id}`);
   }
-// Background syncing of all TheMealDB meals for infinite local randomisation
-let allMealsCache = [];
+});
 
-async function refreshAllMeals() {
-  try {
-    const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
-    const all = [];
-    
-    // We fetch one by one to avoid any rate limits during startup
-    for (const letter of letters) {
-      try {
-        const resp = await mealClient.get(`/search.php?f=${letter}`);
-        if (resp.data?.meals) {
-          all.push(...resp.data.meals);
-        }
-      } catch (err) {
-        // silently ignore letter errors
-      }
-    }
-    
-    const unique = Array.from(new Map(all.map(m => [m.idMeal, m])).values());
-    if (unique.length > 0) {
-      allMealsCache = unique;
-      
-      // Populate standard lookup cache
-      unique.forEach(meal => {
-        mealDbCache.set(`meal_lookup_${meal.idMeal}`, meal, 3600);
-      });
-      console.log(`[Mealify] Successfully cached ${unique.length} global meals for infinite randomisation.`);
-    }
-  } catch (err) {
-    console.error("[Mealify] Failed to refresh all meals cache:", err.message);
-  }
-}
-
-// Initial fetch and 12-hour interval
-refreshAllMeals();
-setInterval(refreshAllMeals, 12 * 60 * 60 * 1000);
-
-// GET /api/meals/random?count=N
+// GET /api/meals/random?count=N — concurrency-limited to 3 in-flight
 router.get("/random", async (req, res) => {
   const count = Math.min(parseInt(req.query.count, 10) || 12, 24);
 
-  // Use our massive global pool if it's ready
-  if (allMealsCache.length >= count) {
-    const shuffled = [...allMealsCache].sort(() => Math.random() - 0.5);
-    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
-    return res.json({ meals: shuffled.slice(0, count), cached: false });
-  }
-
-  // Fallback if background sync hasn't finished yet
   try {
     const tasks = Array(count).fill(0).map((_, i) => async () => {
       try {
