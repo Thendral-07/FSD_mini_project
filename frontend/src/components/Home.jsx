@@ -40,6 +40,7 @@ export default function Home() {
         scale: 0,
         opacity: 0,
         duration: 0.8,
+        stagger: 0.2,
         ease: "back.out(1.7)",
         delay: 1,
       });
@@ -117,7 +118,7 @@ export default function Home() {
             Short on time? DishFlash V2.0 brings you quick, personalized meal plans, effortless nutrition tracking, and culinary inspiration tailored for your busy lifestyle.
           </p>
           <p className="text-lg text-foreground/80 font-medium pb-2">
-            ✨ Say goodbye to food waste and stressful cooking. Start your journey to delicious, healthy, and fast meals today.
+            Say goodbye to food waste and stressful cooking. Start your journey to delicious, healthy, and fast meals today.
           </p>
           
           <form onSubmit={handleSearch} className="flex gap-4 max-w-md">
@@ -155,14 +156,36 @@ export default function Home() {
               className="object-cover w-full h-full"
             />
           </div>
-          {/* Floating badge */}
-          <div className="hero-badge absolute -bottom-6 -left-6 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/10 hover:scale-105 transition-transform cursor-default">
+          {/* Floating badge 1 */}
+          <div className="hero-badge absolute -bottom-6 -left-6 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/10 hover:scale-105 transition-transform cursor-default z-10">
             <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
               <HeartPulse className="w-6 h-6" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground font-medium">Nutrition</p>
               <p className="font-bold">Tracked Daily</p>
+            </div>
+          </div>
+
+          {/* Floating badge 2 */}
+          <div className="hero-badge absolute top-10 -right-12 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/10 hover:scale-105 transition-transform cursor-default z-10">
+            <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center">
+              <ListPlus className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground font-medium">Meal Planning</p>
+              <p className="font-bold">Simplified</p>
+            </div>
+          </div>
+
+          {/* Floating badge 3 */}
+          <div className="hero-badge absolute bottom-1/4 -right-16 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/10 hover:scale-105 transition-transform cursor-default z-10 hidden md:flex">
+            <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+              <Search className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground font-medium">Ingredients</p>
+              <p className="font-bold">Smart Search</p>
             </div>
           </div>
         </div>
@@ -199,12 +222,15 @@ export default function Home() {
 
 function FeatureCard({ icon: Icon, title, description }) {
   return (
-    <div className="feature-card bg-card border rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
+    <motion.div 
+      whileHover={{ y: -8, transition: { duration: 0.2 } }}
+      className="feature-card bg-card border rounded-2xl p-8 shadow-sm hover:shadow-lg hover:border-primary/30 transition-all"
+    >
       <div className="w-14 h-14 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6">
         <Icon className="w-7 h-7" />
       </div>
       <h3 className="text-xl font-bold mb-3">{title}</h3>
       <p className="text-muted-foreground leading-relaxed">{description}</p>
-    </div>
+    </motion.div>
   );
 }
