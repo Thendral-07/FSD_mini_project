@@ -231,6 +231,31 @@ export default function MealModel({ meal, onClose, loading, error }) {
     }
   };
 
+  const scaleMeasure = (measure, servings) => {
+    if (!measure || servings === 1) return measure;
+    
+    // Handle fractions like "1/2", "3/4", "1 1/2" at the start
+    const match = measure.trim().match(/^(\d+)?\s*(?:(\d+)\/(\d+))?(.*)$/);
+    if (match && (match[1] || match[2])) {
+      const whole = parseInt(match[1] || "0", 10);
+      const num = parseInt(match[2] || "0", 10);
+      const den = parseInt(match[3] || "1", 10);
+      
+      if (whole > 0 || num > 0) {
+        let value = whole + (num / den);
+        value = value * servings;
+        value = Math.round(value * 100) / 100; // max 2 decimal places
+        return `${value}${match[4]}`.trim();
+      }
+    }
+    
+    // Fallback for simple decimals or if regex fails
+    return measure.replace(/^([\d.]+)/, (m) => {
+      const num = parseFloat(m);
+      return isNaN(num) ? m : Math.round((num * servings) * 100) / 100;
+    });
+  };
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
@@ -416,7 +441,7 @@ export default function MealModel({ meal, onClose, loading, error }) {
                         {ingredients.map((item, idx) => (
                           <li key={idx} className="flex justify-between items-center text-sm">
                             <span className="font-medium text-foreground">{item.ingredient}</span>
-                            <span className="text-muted-foreground">{item.measure}</span>
+                            <span className="text-muted-foreground">{scaleMeasure(item.measure, servings)}</span>
                           </li>
                         ))}
                       </ul>
