@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 import authRoutes from "./routes/auth.js";
 import mealRoutes from "./routes/meals.js";
@@ -15,12 +17,27 @@ import recommendationRoutes from "./routes/recommendations.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Security Middleware
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 150, // Limit each IP to 150 requests per windowMs
+  message: { error: "Too many requests from this IP, please try again after 15 minutes." },
+});
+app.use("/api", globalLimiter);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 auth requests per windowMs (prevent brute-force)
+  message: { error: "Too many login attempts from this IP, please try again after 15 minutes." },
+});
+
 // Routes
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/meals", mealRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/profile", profileRoutes);

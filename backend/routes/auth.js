@@ -1,13 +1,14 @@
 import { Router } from "express";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import auth from "../middleware/auth.js";
 
 const router = Router();
 
-// Hash password using Node's built-in crypto (no bcrypt)
-function hashPassword(password) {
+// Legacy hash function for backward compatibility
+function hashPasswordLegacy(password) {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
@@ -44,7 +45,8 @@ router.post("/signup", async (req, res) => {
         .json({ error: "An account with this email already exists." });
     }
 
-    const hashedPassword = hashPassword(password);
+    // Hash with bcrypt using cost factor 12 (highly secure)
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await User.create({
       name: name.trim(),
@@ -87,8 +89,22 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password." });
     }
 
-    const hashedPassword = hashPassword(password);
-    if (user.password !== hashedPassword) {
+    // Check if the user is using the old insecure SHA-256 hash (64 hex characters)
+    let isPasswordValid = false;
+    if (user.password.length === 64 && !user.password.startsWith("$2a$")) {
+      const legacyHashedPassword = hashPasswordLegacy(password);
+      if (user.password === legacyHashedPassword) {
+        isPasswordValid = true;
+        // Silent upgrade: Re-hash with bcrypt and save to database
+        user.password = await bcrypt.hash(password, 12);
+        await user.save();
+      }
+    } else {
+      // Standard bcrypt comparison
+      isPasswordValid = await bcrypt.compare(password, user.password);
+    }
+
+    if (!isPasswordValid) {
       return res.status(400).json({ error: "Invalid email or password." });
     }
 
