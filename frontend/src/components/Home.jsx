@@ -157,57 +157,46 @@ export default function Home() {
             />
           </div>
           {/* Floating badge 1 (Top Left) */}
-          <div className="hero-badge absolute top-[10%] -left-2 md:-left-10 bg-card/90 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-xl flex items-center gap-3 md:gap-4 border border-primary/20 hover:scale-105 transition-transform cursor-default z-20">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
-              <HeartPulse className="w-5 h-5 md:w-6 md:h-6" />
+          <div className="hero-badge absolute top-[5%] left-[0%] md:top-[10%] md:left-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 hover:scale-105 transition-transform cursor-default z-20">
+            <div className="w-10 h-10 bg-green-500/10 text-green-500 rounded-xl flex items-center justify-center">
+              <HeartPulse className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-xs md:text-sm text-muted-foreground font-medium">Nutrition</p>
-              <p className="text-sm md:text-base font-bold">Tracked Daily</p>
+            <div className="hidden sm:block">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Nutrition</p>
+              <p className="text-sm font-bold leading-tight">Tracked Daily</p>
             </div>
           </div>
 
           {/* Floating badge 2 (Top Right) */}
-          <div className="hero-badge absolute top-[15%] -right-2 md:-right-10 bg-card/90 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-xl flex items-center gap-3 md:gap-4 border border-primary/20 hover:scale-105 transition-transform cursor-default z-20">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center">
-              <ListPlus className="w-5 h-5 md:w-6 md:h-6" />
+          <div className="hero-badge absolute top-[5%] right-[0%] md:top-[10%] md:right-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 hover:scale-105 transition-transform cursor-default z-20">
+            <div className="w-10 h-10 bg-orange-500/10 text-orange-500 rounded-xl flex items-center justify-center">
+              <ListPlus className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-xs md:text-sm text-muted-foreground font-medium">Meal Planning</p>
-              <p className="text-sm md:text-base font-bold">Simplified</p>
+            <div className="hidden sm:block">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Planning</p>
+              <p className="text-sm font-bold leading-tight">Automated Lists</p>
             </div>
           </div>
 
           {/* Floating badge 3 (Bottom Left) */}
-          <div className="hero-badge absolute bottom-[20%] -left-2 md:-left-8 bg-card/90 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-xl flex items-center gap-3 md:gap-4 border border-primary/20 hover:scale-105 transition-transform cursor-default z-20">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-              <Search className="w-5 h-5 md:w-6 md:h-6" />
+          <div className="hero-badge absolute bottom-[5%] left-[0%] md:bottom-[10%] md:left-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 hover:scale-105 transition-transform cursor-default z-20">
+            <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center">
+              <Search className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-xs md:text-sm text-muted-foreground font-medium">Ingredients</p>
-              <p className="text-sm md:text-base font-bold">Smart Search</p>
+            <div className="hidden sm:block">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Discovery</p>
+              <p className="text-sm font-bold leading-tight">Smart Search</p>
             </div>
           </div>
 
           {/* Floating badge 4 (Bottom Right) */}
-          <div className="hero-badge absolute bottom-[15%] -right-2 md:-right-8 bg-card/90 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-xl flex items-center gap-3 md:gap-4 border border-primary/20 hover:scale-105 transition-transform cursor-default z-20">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center">
-              <ChefHat className="w-5 h-5 md:w-6 md:h-6" />
+          <div className="hero-badge absolute bottom-[5%] right-[0%] md:bottom-[10%] md:right-[2%] bg-background/80 dark:bg-card/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-border/50 hover:scale-105 transition-transform cursor-default z-20">
+            <div className="w-10 h-10 bg-purple-500/10 text-purple-500 rounded-xl flex items-center justify-center">
+              <ChefHat className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-xs md:text-sm text-muted-foreground font-medium">Cookbook</p>
-              <p className="text-sm md:text-base font-bold">Creator Recipes</p>
-            </div>
-          </div>
-
-          {/* Floating badge 5 (Bottom Center) */}
-          <div className="hero-badge absolute -bottom-6 left-1/2 -translate-x-1/2 bg-card/90 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-xl flex items-center gap-3 md:gap-4 border border-primary/20 hover:scale-105 transition-transform cursor-default z-20">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center">
-              <Flame className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
-            <div>
-              <p className="text-xs md:text-sm text-muted-foreground font-medium">Cooking</p>
-              <p className="text-sm md:text-base font-bold">Fast & Easy</p>
+            <div className="hidden sm:block">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Community</p>
+              <p className="text-sm font-bold leading-tight">Creator Recipes</p>
             </div>
           </div>
         </div>
