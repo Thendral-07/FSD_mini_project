@@ -1,0 +1,53 @@
+# Vercel Web Analytics Integration
+
+## Summary
+Successfully installed and configured Vercel Web Analytics for the DishFlash React + Vite project.
+
+## Changes Made
+
+### 1. Package Installation
+- **Added dependency**: `@vercel/analytics` (v2.0.1)
+- **Files modified**: 
+  - `package.json` - Added @vercel/analytics to dependencies
+  - `package-lock.json` - Updated with new package and its dependencies (254 packages added)
+
+### 2. Analytics Integration
+- **File modified**: `src/App.jsx`
+- **Changes**:
+  - Added import statement: `import { Analytics } from "@vercel/analytics/react";`
+  - Added `<Analytics />` component inside the ThemeProvider wrapper at the root level
+  - Placement ensures analytics tracks all routes and user interactions across the app
+
+## Implementation Details
+
+### Framework
+- React 19.2.4 with Vite 8.0.1
+- Following official Vercel documentation for React projects
+
+### Integration Pattern
+The Analytics component was placed at the root level inside the ThemeProvider, ensuring it:
+- Has access to the theme context
+- Tracks all routes managed by BrowserRouter
+- Captures user interactions across all pages
+- Remains active throughout the application lifecycle
+
+### Verification
+✅ Build completed successfully (`npm run build`)
+✅ No new linting errors introduced
+✅ Dependencies installed and lock file updated
+✅ Analytics component properly imported and integrated
+
+## Next Steps
+After deploying to Vercel, analytics will automatically begin tracking:
+- Page views
+- User interactions
+- Performance metrics
+- Custom events (if configured)
+
+Visit the Vercel dashboard to view analytics data once deployed.
+
+## Notes
+- The integration follows the official Vercel Analytics quickstart guide
+- All existing code structure and functionality preserved
+- No breaking changes introduced
+- Compatible with the existing React Router setup
