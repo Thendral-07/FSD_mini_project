@@ -261,15 +261,15 @@ export default function MealModel({ meal, onClose, loading, error }) {
       }
     }
 
-    // Unit conversions (1000g -> 1kg, 1000ml -> 1l)
+    // Unit conversions (1000g -> 1 Kg, 1000ml -> 1 L)
     scaled = scaled.replace(/^([\d.]+)\s*(g|ml|kg|l|liter|liters|litre|litres)\b/i, (m, valStr, unit) => {
       const val = parseFloat(valStr);
       const u = unit.toLowerCase();
       if (u === 'g' && val >= 1000) {
-        return `${Math.round((val / 1000) * 100) / 100}kg`;
+        return `${Math.round((val / 1000) * 100) / 100} Kg`;
       }
       if (u === 'ml' && val >= 1000) {
-        return `${Math.round((val / 1000) * 100) / 100}l`;
+        return `${Math.round((val / 1000) * 100) / 100} L`;
       }
       return m;
     });
