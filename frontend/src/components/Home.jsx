@@ -36,6 +36,14 @@ export default function Home() {
         delay: 0.3,
       });
 
+      gsap.from(".hero-badge", {
+        scale: 0,
+        opacity: 0,
+        duration: 0.8,
+        ease: "back.out(1.7)",
+        delay: 1,
+      });
+
       // Features Animation
       gsap.from(".feature-card", {
         scrollTrigger: {
@@ -108,15 +116,18 @@ export default function Home() {
           <p className="text-xl text-muted-foreground leading-relaxed">
             Short on time? DishFlash V2.0 brings you quick, personalized meal plans, effortless nutrition tracking, and culinary inspiration tailored for your busy lifestyle.
           </p>
+          <p className="text-lg text-foreground/80 font-medium pb-2">
+            ✨ Say goodbye to food waste and stressful cooking. Start your journey to delicious, healthy, and fast meals today.
+          </p>
           
           <form onSubmit={handleSearch} className="flex gap-4 max-w-md">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+            <div className="relative flex-1 group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 transition-colors group-focus-within:text-primary" />
               <Input 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search ingredients or recipes..." 
-                className="pl-10 h-14 text-lg rounded-full shadow-sm"
+                className="pl-12 h-14 text-lg rounded-full shadow-sm border-2 border-muted focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/20 transition-all bg-background/50 backdrop-blur-sm"
               />
             </div>
             <Button type="submit" size="lg" className="h-14 rounded-full px-8">
@@ -145,7 +156,7 @@ export default function Home() {
             />
           </div>
           {/* Floating badge */}
-          <div className="hero-image absolute -bottom-6 -left-6 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4">
+          <div className="hero-badge absolute -bottom-6 -left-6 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/10 hover:scale-105 transition-transform cursor-default">
             <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
               <HeartPulse className="w-6 h-6" />
             </div>
