@@ -18,6 +18,46 @@ const mealClient = axios.create({
   timeout: 8000,
 });
 
+// Map to store in-flight promises to prevent cache stampedes (thundering herd)
+const inFlightRequests = new Map();
+
+/**
+ * Executes a fetch function with both caching and in-flight deduplication.
+ * If 100 users request the same key simultaneously before it's cached,
+ * only 1 upstream request will be made; the other 99 will await the same promise.
+ */
+async function getWithDeduplication(cacheKey, fetchFn, ttlSeconds = 3600) {
+  // 1. Check cache first
+  const cached = mealDbCache.get(cacheKey);
+  if (cached) {
+    return { data: cached, cached: true };
+  }
+
+  // 2. Check if already in-flight
+  if (inFlightRequests.has(cacheKey)) {
+    const data = await inFlightRequests.get(cacheKey);
+    return { data, cached: true }; // Treated as cached for concurrent followers
+  }
+
+  // 3. Create the promise and store it
+  const promise = (async () => {
+    try {
+      const data = await fetchFn();
+      if (data && (Array.isArray(data) ? data.length > 0 : true)) {
+        mealDbCache.set(cacheKey, data, ttlSeconds);
+      }
+      return data;
+    } finally {
+      // Always cleanup the in-flight map when done (success or fail)
+      inFlightRequests.delete(cacheKey);
+    }
+  })();
+
+  inFlightRequests.set(cacheKey, promise);
+  const data = await promise;
+  return { data, cached: false };
+}
+
 /**
  * Concurrency limiter helper: runs an array of task functions with max `limit` in-flight requests.
  */
@@ -68,17 +108,15 @@ router.get("/lookup/:id", async (req, res) => {
   }
 
   const cacheKey = `meal_lookup_${id}`;
-  const cached = mealDbCache.get(cacheKey);
-  if (cached) {
-    return res.json({ meal: cached, cached: true });
-  }
 
   try {
-    const response = await mealClient.get(`/lookup.php?i=${id}`);
-    const meal = response.data?.meals?.[0] || null;
+    const { data: meal, cached } = await getWithDeduplication(cacheKey, async () => {
+      const response = await mealClient.get(`/lookup.php?i=${id}`);
+      return response.data?.meals?.[0] || null;
+    }, 3600);
+
     if (meal) {
-      mealDbCache.set(cacheKey, meal, 3600); // 1 hr cache
-      return res.json({ meal, cached: false });
+      return res.json({ meal, cached });
     }
     return res.status(404).json({ error: "NOT_FOUND", message: "Meal not found." });
   } catch (err) {
@@ -135,16 +173,14 @@ router.get("/filter", async (req, res) => {
   }
 
   const cacheKey = `meal_filter_${param.toLowerCase()}`;
-  const cached = mealDbCache.get(cacheKey);
-  if (cached) {
-    return res.json({ meals: cached, cached: true });
-  }
 
   try {
-    const response = await mealClient.get(`/filter.php?${param}`);
-    const meals = response.data?.meals || [];
-    mealDbCache.set(cacheKey, meals, 3600); // 1 hr cache
-    return res.json({ meals, cached: false });
+    const { data: meals, cached } = await getWithDeduplication(cacheKey, async () => {
+      const response = await mealClient.get(`/filter.php?${param}`);
+      return response.data?.meals || [];
+    }, 3600);
+
+    return res.json({ meals: meals || [], cached });
   } catch (err) {
     return handleMealError(err, res, `filter?${param}`);
   }
@@ -159,19 +195,19 @@ router.get("/search", async (req, res) => {
   }
 
   const cacheKey = `meal_search_${query}`;
-  const cached = mealDbCache.get(cacheKey);
-  if (cached) {
-    return res.json({ meals: cached, cached: true });
-  }
 
   try {
-    const response = await mealClient.get(`/search.php?s=${encodeURIComponent(query)}`);
-    const meals = response.data?.meals || [];
-    meals.forEach((m) => {
-      if (m?.idMeal) mealDbCache.set(`meal_lookup_${m.idMeal}`, m, 3600);
-    });
-    mealDbCache.set(cacheKey, meals, 900); // 15 min cache
-    return res.json({ meals, cached: false });
+    const { data: meals, cached } = await getWithDeduplication(cacheKey, async () => {
+      const response = await mealClient.get(`/search.php?s=${encodeURIComponent(query)}`);
+      const results = response.data?.meals || [];
+      // Populate individual lookup cache
+      results.forEach((m) => {
+        if (m?.idMeal) mealDbCache.set(`meal_lookup_${m.idMeal}`, m, 3600);
+      });
+      return results;
+    }, 900);
+
+    return res.json({ meals: meals || [], cached });
   } catch (err) {
     return handleMealError(err, res, `search?s=${query}`);
   }
