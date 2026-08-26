@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { lookupMeal, searchMealsByName, MealApiError } from "../utils/mealdbClient";
+import { lookupMeal, searchMealsByName, filterByIngredient, MealApiError } from "../utils/mealdbClient";
 import { Button } from "../components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, Search, X } from "lucide-react";
@@ -14,6 +14,7 @@ export default function Planner() {
   const [loading, setLoading] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState("name");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
@@ -118,7 +119,9 @@ export default function Planner() {
     setSearchLoading(true);
     setSearchError("");
     try {
-      const meals = await searchMealsByName(searchQuery);
+      const meals = searchType === "ingredient" 
+        ? await filterByIngredient(searchQuery)
+        : await searchMealsByName(searchQuery);
       setSearchResults(meals || []);
     } catch (err) {
       if (err instanceof MealApiError && err.code === "RATE_LIMITED") {
@@ -244,17 +247,43 @@ export default function Planner() {
               </div>
 
               <div className="p-4">
-                <form onSubmit={handleSearch} className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Search by meal name..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 bg-muted px-4 py-2 rounded-xl outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <Button type="submit" disabled={searchLoading}>
-                    {searchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
-                  </Button>
+                <form onSubmit={handleSearch} className="flex flex-col gap-3">
+                  <div className="flex gap-4 mb-2 px-1">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm font-medium">
+                      <input 
+                        type="radio" 
+                        name="searchType" 
+                        value="name" 
+                        checked={searchType === "name"} 
+                        onChange={() => setSearchType("name")} 
+                        className="accent-primary w-4 h-4"
+                      />
+                      <span>By Name</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-sm font-medium">
+                      <input 
+                        type="radio" 
+                        name="searchType" 
+                        value="ingredient" 
+                        checked={searchType === "ingredient"} 
+                        onChange={() => setSearchType("ingredient")}
+                        className="accent-primary w-4 h-4"
+                      />
+                      <span>By Ingredient</span>
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder={searchType === "name" ? "Search by meal name..." : "Search by ingredient..."} 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="flex-1 bg-muted px-4 py-2 rounded-xl outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <Button type="submit" disabled={searchLoading}>
+                      {searchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Search"}
+                    </Button>
+                  </div>
                 </form>
               </div>
 
