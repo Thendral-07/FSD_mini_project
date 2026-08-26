@@ -3,7 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { lookupMeal, MealApiError } from "../utils/mealdbClient";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Loader2, Flame, Search as SearchIcon, Activity, Utensils } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, LineChart, Line, Brush } from "recharts";
 import { AnimatePresence, motion } from "framer-motion";
 import MealModel from "../context/MealModel";
 
@@ -155,6 +155,9 @@ export default function Dashboard() {
                       itemStyle={{ color: "hsl(var(--primary))" }}
                     />
                     <Area type="monotone" dataKey="calories" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorCalories)" dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
+                    {nutrition.length > 14 && (
+                      <Brush dataKey="name" height={30} stroke="hsl(var(--muted-foreground))" fill="transparent" />
+                    )}
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -193,6 +196,9 @@ export default function Dashboard() {
                     <Bar dataKey="protein" name="Protein (g)" stackId="a" fill="#f97316" radius={[0, 0, 4, 4]} />
                     <Bar dataKey="carbs" name="Carbs (g)" stackId="a" fill="#3b82f6" />
                     <Bar dataKey="fat" name="Fat (g)" stackId="a" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    {nutrition.length > 14 && (
+                      <Brush dataKey="name" height={30} stroke="hsl(var(--muted-foreground))" fill="transparent" />
+                    )}
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -228,6 +234,9 @@ export default function Dashboard() {
                     <Line type="monotone" dataKey="protein" name="Protein" stroke="#f97316" strokeWidth={2} dot={{ r: 3, fill: "#f97316" }} activeDot={{ r: 5 }} />
                     <Line type="monotone" dataKey="carbs" name="Carbs" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: "#3b82f6" }} activeDot={{ r: 5 }} />
                     <Line type="monotone" dataKey="fat" name="Fat" stroke="#10b981" strokeWidth={2} dot={{ r: 3, fill: "#10b981" }} activeDot={{ r: 5 }} />
+                    {nutrition.length > 14 && (
+                      <Brush dataKey="name" height={30} stroke="hsl(var(--muted-foreground))" fill="transparent" />
+                    )}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
