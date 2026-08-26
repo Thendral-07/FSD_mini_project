@@ -103,10 +103,10 @@ export default function MealModel({ meal, onClose, loading, error }) {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ 
-                calories: currentCals + totalCalories,
-                protein: currentProtein + (macros.protein * activeServings),
-                carbs: currentCarbs + (macros.carbs * activeServings),
-                fat: currentFat + (macros.fat * activeServings)
+                calories: currentCals + baseCalories,
+                protein: currentProtein + macros.protein,
+                carbs: currentCarbs + macros.carbs,
+                fat: currentFat + macros.fat
               })
             });
           }
