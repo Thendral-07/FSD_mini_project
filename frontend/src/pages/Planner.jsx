@@ -289,7 +289,7 @@ export default function Planner() {
 
               <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                 {searchResults.map(meal => (
-                  <div key={meal.idMeal} className="flex items-center gap-4 bg-muted/30 p-3 rounded-xl border hover:border-primary transition-colors cursor-pointer" onClick={() => setSelectedMeal(meal)}>
+                  <div key={meal.idMeal} className="flex items-center gap-4 bg-muted/30 p-3 rounded-xl border hover:border-primary transition-colors cursor-pointer" onClick={() => openMealDetails(meal.idMeal)}>
                     <img src={meal.strMealThumb} alt={meal.strMeal} className="w-12 h-12 rounded-lg object-cover" />
                     <div className="flex-1">
                       <div className="font-semibold">{meal.strMeal}</div>
