@@ -64,7 +64,8 @@ export default function MealModel({ meal, onClose, loading, error }) {
   // Calculate calories and macros based on ingredients!
   const macros = calculateMealMacros(ingredients);
   const baseCalories = macros.calories;
-  const totalCalories = baseCalories * servings;
+  const activeServings = Number(servings) || 1;
+  const totalCalories = baseCalories * activeServings;
   const caloriesPerServe = baseCalories; // Assume base calculation is for 1 serving
   
   const isHighProtein = ["Chicken", "Beef", "Seafood"].includes(meal.strCategory);
@@ -103,9 +104,9 @@ export default function MealModel({ meal, onClose, loading, error }) {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ 
                 calories: currentCals + totalCalories,
-                protein: currentProtein + (macros.protein * servings),
-                carbs: currentCarbs + (macros.carbs * servings),
-                fat: currentFat + (macros.fat * servings)
+                protein: currentProtein + (macros.protein * activeServings),
+                carbs: currentCarbs + (macros.carbs * activeServings),
+                fat: currentFat + (macros.fat * activeServings)
               })
             });
           }
@@ -243,7 +244,7 @@ export default function MealModel({ meal, onClose, loading, error }) {
       
       if (whole > 0 || num > 0) {
         let value = whole + (num / den);
-        value = value * servings;
+        value = value * activeServings;
         value = Math.round(value * 100) / 100; // max 2 decimal places
         return `${value}${match[4]}`.trim();
       }
@@ -252,7 +253,7 @@ export default function MealModel({ meal, onClose, loading, error }) {
     // Fallback for simple decimals or if regex fails
     return measure.replace(/^([\d.]+)/, (m) => {
       const num = parseFloat(m);
-      return isNaN(num) ? m : Math.round((num * servings) * 100) / 100;
+      return isNaN(num) ? m : Math.round((num * activeServings) * 100) / 100;
     });
   };
 
@@ -308,15 +309,15 @@ export default function MealModel({ meal, onClose, loading, error }) {
               <div className="flex gap-3 mt-3">
                 <div className="flex flex-col items-center bg-black/30 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2">
                   <span className="text-[10px] text-white/70 uppercase font-bold tracking-widest">Protein</span>
-                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.protein * servings}g</span>
+                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.protein * activeServings}g</span>
                 </div>
                 <div className="flex flex-col items-center bg-black/30 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2">
                   <span className="text-[10px] text-white/70 uppercase font-bold tracking-widest">Carbs</span>
-                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.carbs * servings}g</span>
+                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.carbs * activeServings}g</span>
                 </div>
                 <div className="flex flex-col items-center bg-black/30 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2">
                   <span className="text-[10px] text-white/70 uppercase font-bold tracking-widest">Fat</span>
-                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.fat * servings}g</span>
+                  <span className="font-bold text-white text-lg leading-none mt-1">{macros.fat * activeServings}g</span>
                 </div>
               </div>
             </div>
@@ -415,14 +416,41 @@ export default function MealModel({ meal, onClose, loading, error }) {
                   <span className="font-semibold flex-1">Servings</span>
                   <div className="flex items-center gap-3 bg-background border rounded-xl p-1">
                     <button 
-                      onClick={() => setServings(Math.max(1, servings - 1))}
+                      onClick={() => setServings(Math.max(1, activeServings - 1))}
                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-6 text-center font-semibold">{servings}</span>
+                    <style>{`
+                      input[type="number"]::-webkit-inner-spin-button,
+                      input[type="number"]::-webkit-outer-spin-button {
+                        -webkit-appearance: none;
+                        margin: 0;
+                      }
+                      input[type="number"] {
+                        -moz-appearance: textfield;
+                      }
+                    `}</style>
+                    <input 
+                      type="number"
+                      min="1"
+                      value={servings}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                          setServings("");
+                        } else {
+                          const num = parseInt(val, 10);
+                          if (!isNaN(num)) setServings(Math.max(1, num));
+                        }
+                      }}
+                      onBlur={() => {
+                        if (servings === "" || servings < 1) setServings(1);
+                      }}
+                      className="w-10 text-center font-semibold bg-transparent border-none outline-none focus:ring-0 p-0 text-foreground"
+                    />
                     <button 
-                      onClick={() => setServings(servings + 1)}
+                      onClick={() => setServings(activeServings + 1)}
                       className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
                     >
                       <PlusIcon className="w-4 h-4" />
