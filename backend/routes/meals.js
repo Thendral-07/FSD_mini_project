@@ -135,6 +135,7 @@ router.get("/random", async (req, res) => {
   if (cached && cached.length >= count) {
     // Shuffle the cached pool and return exactly 'count' meals
     const shuffled = [...cached].sort(() => Math.random() - 0.5);
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     return res.json({ meals: shuffled.slice(0, count), cached: true });
   }
 

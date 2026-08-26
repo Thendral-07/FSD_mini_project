@@ -168,7 +168,7 @@ export async function lookupMeal(mealId) {
 export async function getRandomMeals(count = 12) {
   // 1. Try Backend Proxy
   try {
-    const res = await fetch(`${API_BASE}/meals/random?count=${count}`);
+    const res = await fetch(`${API_BASE}/meals/random?count=${count}&t=${Date.now()}`);
     const data = await handleResponse(res);
     const meals = data?.meals || [];
     if (meals.length > 0) {
