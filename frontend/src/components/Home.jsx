@@ -156,8 +156,8 @@ export default function Home() {
               className="object-cover w-full h-full"
             />
           </div>
-          {/* Floating badge 1 */}
-          <div className="hero-badge absolute -bottom-6 -left-6 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/10 hover:scale-105 transition-transform cursor-default z-10">
+          {/* Floating badge 1 (Top Left) */}
+          <div className="hero-badge absolute top-12 -left-4 md:-left-12 bg-card/90 backdrop-blur-md p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/20 hover:scale-105 transition-transform cursor-default z-20">
             <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
               <HeartPulse className="w-6 h-6" />
             </div>
@@ -167,8 +167,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Floating badge 2 */}
-          <div className="hero-badge absolute top-10 -right-12 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/10 hover:scale-105 transition-transform cursor-default z-10">
+          {/* Floating badge 2 (Bottom Right) */}
+          <div className="hero-badge absolute bottom-20 -right-4 md:-right-12 bg-card/90 backdrop-blur-md p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/20 hover:scale-105 transition-transform cursor-default z-20">
             <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center">
               <ListPlus className="w-6 h-6" />
             </div>
@@ -178,8 +178,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Floating badge 3 */}
-          <div className="hero-badge absolute bottom-1/4 -right-16 bg-card p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/10 hover:scale-105 transition-transform cursor-default z-10 hidden md:flex">
+          {/* Floating badge 3 (Bottom Center) */}
+          <div className="hero-badge absolute -bottom-6 left-1/2 -translate-x-1/2 bg-card/90 backdrop-blur-md p-4 rounded-2xl shadow-xl flex items-center gap-4 border border-primary/20 hover:scale-105 transition-transform cursor-default z-20">
             <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
               <Search className="w-6 h-6" />
             </div>
